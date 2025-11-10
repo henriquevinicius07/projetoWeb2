@@ -3,12 +3,13 @@
       th:replace="~{layout :: layout(~{fragments/head :: head}, ~{::main})}">
 
 <head>
-    <!-- Ícones do Bootstrap -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 
-<main>
+<main class="flex-grow-1">
     <div class="container my-5">
+
         <!-- Título -->
         <div class="text-center mb-4">
             <h1 class="fw-bold text-primary">
@@ -42,7 +43,8 @@
                             <span th:text="${venda.cliente.nomeExibicao}"></span>
                         </p>
                         <p class="mb-1 text-success fw-bold">
-                            <strong>Total:</strong> R$ <span th:text="${venda.total}"></span>
+                            <strong>Total:</strong> R$
+                            <span th:text="${#numbers.formatDecimal(venda.total, 2, 'POINT', 2, 'COMMA')}"></span>
                         </p>
                     </div>
                 </div>
@@ -58,7 +60,7 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-striped align-middle mb-0">
+                    <table class="table table-striped align-middle mb-0 text-center">
                         <thead class="table-primary">
                         <tr>
                             <th>Produto</th>
@@ -71,9 +73,14 @@
                         <tr th:each="item : ${venda.itens}">
                             <td th:text="${item.produto.descricao}"></td>
                             <td th:text="${item.quantidade}"></td>
-                            <td>R$ <span th:text="${item.produto.valor}"></span></td>
+                            <td>R$ <span th:text="${#numbers.formatDecimal(item.produto.valor, 2, 'POINT', 2, 'COMMA')}"></span></td>
                             <td class="fw-bold text-success">
-                                R$ <span th:text="${item.total}"></span>
+                                R$ <span th:text="${#numbers.formatDecimal(item.total, 2, 'POINT', 2, 'COMMA')}"></span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(venda.itens)}">
+                            <td colspan="4" class="text-muted fst-italic">
+                                Nenhum item encontrado nesta venda.
                             </td>
                         </tr>
                         </tbody>
@@ -81,6 +88,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 </main>
 </html>
