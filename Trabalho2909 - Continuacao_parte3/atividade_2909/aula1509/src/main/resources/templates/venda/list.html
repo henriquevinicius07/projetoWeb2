@@ -3,34 +3,49 @@
       th:replace="~{layout :: layout(~{fragments/head :: head}, ~{::main})}">
 
 <main>
-    <div class="container">
-        <h1 class="text-center mb-4">Vendas</h1>
+    <div class="container my-4">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h2 class="mb-0"><i class="bi bi-basket2-fill me-2"></i>Vendas</h2>
+            </div>
+            <div class="card-body">
 
-        <div class="mb-3 text-end">
-            <a th:href="@{/venda/form}" class="btn btn-primary">Nova Venda</a>
-        </div>
+                <div class="d-flex justify-content-center flex-wrap gap-2 mb-4">
+                    <a th:href="@{/venda/form}" class="btn btn-success">
+                        <i class="bi bi-person-plus-fill me-2"></i> Nova Venda
+                    </a>
+                </div>
 
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Data</th>
-                    <th>Total</th>
-                    <th>Ações</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="venda : ${vendas}">
-                    <td th:text="${venda.id}"></td>
-                    <td th:text="${#temporals.format(venda.data, 'dd/MM/yyyy HH:mm')}"></td>
-                    <td th:text="${venda.total}"></td>
-                    <td>
-                        <a th:href="@{/venda/detail/{id}(id=${venda.id})}" class="btn btn-sm btn-info">Ver</a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle text-center">
+                        <thead class="table-primary">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Data</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="venda : ${vendas}">
+                            <td th:text="${venda.id}"></td>
+                            <td th:text="${#temporals.format(venda.data, 'dd/MM/yyyy HH:mm')}"></td>
+                            <td>
+                                R$ <span th:text="${#numbers.formatDecimal(venda.total, 2, 'POINT', 2, 'COMMA')}"></span>
+                            </td>
+                            <td>
+                                <a th:href="@{/venda/detail/{id}(id=${venda.id})}" class="btn btn-success">
+                                    <i class="bi bi-eye"></i> Ver Detalhes
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(vendas)}">
+                            <td colspan="4" class="text-muted fst-italic">Nenhuma venda encontrada.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </main>
