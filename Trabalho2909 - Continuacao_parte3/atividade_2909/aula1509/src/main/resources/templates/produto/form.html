@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+      th:replace="~{layout :: layout(~{fragments/head :: head}, ~{::main})}">
+
+<main>
+    <div class="container">
+        <h1 th:text="${produto.id == null} ? 'Cadastro de Produto' : 'Edição de Produto'" class="text-center mb-4"></h1>
+
+        <div class="card p-4 mx-auto" style="max-width:600px;">
+            <form th:action="${produto.id == null} ? '/produto/salvar' : '/produto/atualizar'"
+                  th:object="${produto}" method="post">
+
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="mb-3">
+                    <label class="form-label">Descrição</label>
+                    <input type="text" th:field="*{descricao}" class="form-control" placeholder="Descrição do produto" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Valor</label>
+                    <input type="number" step="0.01" th:field="*{valor}" class="form-control" placeholder="Valor do produto" required />
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary px-4">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+</html>

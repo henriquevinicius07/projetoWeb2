@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{fragments/head :: head}, ~{::main})}">
+
+<main>
+    <div class="container">
+        <h1 class="text-center mb-4" th:text="${titulo}">Lista de Pessoas</h1>
+
+        <div class="d-flex justify-content-center gap-2 mb-4">
+            <a th:if="${tipo == 'fisica'}" th:href="@{/pessoafisica/form}" class="btn btn-success">Nova Pessoa Física</a>
+            <a th:if="${tipo == 'juridica'}" th:href="@{/pessoajuridica/form}" class="btn btn-success">Nova Pessoa Jurídica</a>
+
+            <a th:if="${tipo == 'fisica'}" th:href="@{/pessoajuridica/list}" class="btn btn-outline-primary">Ver Jurídicas</a>
+            <a th:if="${tipo == 'juridica'}" th:href="@{/pessoafisica/list}" class="btn btn-outline-primary">Ver Físicas</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered shadow-sm align-middle text-center">
+                <thead class="table-primary">
+                <tr>
+                    <th>ID</th>
+                    <th>Nome/Razão Social</th>
+                    <th>Email</th>
+                    <th>Telefone</th>
+                    <th>Documento</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="pessoa : ${pessoas}">
+                    <td th:text="${pessoa.id}"></td>
+                    <td th:text="${pessoa.getNomeExibicao()}"></td>
+                    <td th:text="${pessoa.email}"></td>
+                    <td th:text="${pessoa.telefone}"></td>
+                    <td th:text="${pessoa.tipoObjeto('pessoafisica') ? pessoa.cpf : pessoa.cnpj}"></td>
+                    <td>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a th:if="${tipo == 'fisica'}" th:href="@{/pessoafisica/editar/{id}(id=${pessoa.id})}" class="btn btn-warning btn-sm text-dark">Editar</a>
+                            <a th:if="${tipo == 'fisica'}" th:href="@{/pessoafisica/remover/{id}(id=${pessoa.id})}" class="btn btn-danger btn-sm"
+                               onclick="return confirm('Deseja realmente excluir?')">Excluir</a>
+
+                            <a th:if="${tipo == 'juridica'}" th:href="@{/pessoajuridica/editar/{id}(id=${pessoa.id})}" class="btn btn-warning btn-sm text-dark">Editar</a>
+                            <a th:if="${tipo == 'juridica'}" th:href="@{/pessoajuridica/remover/{id}(id=${pessoa.id})}" class="btn btn-danger btn-sm"
+                               onclick="return confirm('Deseja realmente excluir?')">Excluir</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</html>

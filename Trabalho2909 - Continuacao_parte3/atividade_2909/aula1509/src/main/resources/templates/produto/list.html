@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+      th:replace="~{layout :: layout(~{fragments/head :: head}, ~{::main})}">
+
+<main>
+    <div class="container">
+        <h1 class="text-center mb-4">Produtos</h1>
+
+        <div class="mb-3 text-end">
+            <a th:href="@{/produto/form}" class="btn btn-primary">Novo Produto</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="produto : ${produtos}">
+                    <td th:text="${produto.descricao}"></td>
+                    <td th:text="${#numbers.formatDecimal(produto.valor, 2, 'POINT')}"></td>
+                    <td>
+                        <a th:href="@{/produto/edit/{id}(id=${produto.id})}" class="btn btn-sm btn-warning">Editar</a>
+                        <a th:href="@{/produto/remove/{id}(id=${produto.id})}" class="btn btn-sm btn-danger">Remover</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</html>

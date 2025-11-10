@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/Trabalho2909 - Continuacao_parte3/atividade_2909/aula1509/src/main/resources/templates/fragments/footer.html">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/Trabalho2909 - Continuacao_parte3/atividade_2909/aula1509/src/main/resources/templates/fragments/footer.html" />
+              <option name="originalContent" value="&lt;footer th:fragment=&quot;footer&quot; class=&quot;bg-light text-center py-3 mt-auto&quot; xmlns:th=&quot;http://www.thymeleaf.org&quot;&gt;&#10;    &lt;p class=&quot;mb-0 text-secondary&quot;&gt;&amp;copy; 2025 Cadastro de Produtos - Programação Web II&lt;/p&gt;&#10;&lt;/footer&gt;&#10;" />
+              <option name="updatedContent" value="&lt;footer th:fragment=&quot;footer&quot; class=&quot;bg-light text-center py-3 mt-auto&quot; xmlns:th=&quot;http://www.thymeleaf.org&quot;&gt;&#10;    &lt;p class=&quot;mb-0 text-secondary&quot;&gt;&amp;copy; 2025 Cadastro de Produtos - Programação Web II&lt;/p&gt;&#10;&lt;/footer&gt;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

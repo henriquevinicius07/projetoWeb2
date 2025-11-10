@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+      th:replace="~{layout :: layout(~{fragments/head :: head}, ~{::main})}">
+
+<main>
+    <div class="container">
+        <h1 class="text-center mb-4">Vendas</h1>
+
+        <div class="mb-3 text-end">
+            <a th:href="@{/venda/form}" class="btn btn-primary">Nova Venda</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Data</th>
+                    <th>Total</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="venda : ${vendas}">
+                    <td th:text="${venda.id}"></td>
+                    <td th:text="${#temporals.format(venda.data, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td th:text="${venda.total}"></td>
+                    <td>
+                        <a th:href="@{/venda/detail/{id}(id=${venda.id})}" class="btn btn-sm btn-info">Ver</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</html>
