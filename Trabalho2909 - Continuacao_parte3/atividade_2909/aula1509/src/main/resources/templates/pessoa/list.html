@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pt-br"
       th:replace="~{layout :: layout(~{::head}, ~{::main})}">
 
-<head th:replace="fragments/head :: head('Lista de Pessoas')"></head>
+<head th:replace="~{fragments/head :: head('Lista de Pessoas')}"></head>
+
 
 <main>
     <div class="container my-4">
@@ -12,8 +13,9 @@
             <!-- Cabeçalho -->
             <div class="card-header bg-primary text-white text-center py-3">
                 <h2 class="mb-0">
-                    <i class="bi bi-people-fill me-2"></i>
-                    <span th:text="${titulo}">Lista de Pessoas</span>
+                    <i th:class="${tipo == 'fisica'} ? 'bi bi-people-fill me-2' : 'bi bi-building-add me-2'"></i>
+
+                    <span th:text="${tipo == 'fisica'} ? 'Pessoas Físicas' : 'Pessoas Jurídicas'">Lista de Pessoas</span>
                 </h2>
             </div>
 

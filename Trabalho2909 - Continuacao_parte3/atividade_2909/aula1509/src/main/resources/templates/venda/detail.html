@@ -3,7 +3,7 @@
 
       th:replace="~{layout :: layout(~{::head}, ~{::main})}">
 
-<head th:replace="fragments/head :: head('Detalhes da venda')"></head>
+<head th:replace="~{fragments/head :: head('Detalhes da venda')}"></head>
 
 <main class="flex-grow-1">
     <div class="container my-5">
