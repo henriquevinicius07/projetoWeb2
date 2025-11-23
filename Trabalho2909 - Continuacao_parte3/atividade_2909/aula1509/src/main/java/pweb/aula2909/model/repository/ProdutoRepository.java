@@ -41,4 +41,13 @@ public class ProdutoRepository {
         }
     }
 
+
+    public List<Produto> buscarPorNome(String nome) {
+        String hql = "from Produto p where lower(p.descricao) like lower(:nome)";
+        Query query = em.createQuery(hql);
+        query.setParameter("nome", "%" + nome + "%");
+        return query.getResultList();
+    }
+
+
 }

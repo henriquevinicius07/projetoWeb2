@@ -4,7 +4,6 @@
 
 <head th:replace="~{fragments/head :: head('Lista de Vendas')}"></head>
 
-
 <main class="flex-grow-1">
     <div class="container my-4">
 
@@ -25,13 +24,27 @@
                 </div>
 
 
-                <form class="d-flex justify-content-center mb-4" method="get" th:action="@{/venda/list}">
+                <!-- FORMULÁRIO ÚNICO DE FILTRO -->
+                <form class="d-flex justify-content-center mb-4 flex-wrap gap-2"
+                      method="get" th:action="@{/venda/list}">
+
+                    <!-- FILTRAR POR CLIENTE -->
+                    <select name="clienteId" class="btn btn-primary">
+                        <option value="">Todos os clientes</option>
+                        <option th:each="c : ${clientes}"
+                                th:value="${c.id}"
+                                th:selected="${clienteFiltro == c.id}"
+                                th:text="${c.nomeExibicao}"></option>
+                    </select>
+
+                    <!-- FILTRAR POR DATA -->
                     <input
                             type="date"
                             name="data"
                             class="form-control w-auto me-2"
                             th:value="${dataFiltro}"
                     >
+
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-search"></i> Filtrar
                     </button>
@@ -40,7 +53,6 @@
                         <i class="bi bi-x-circle"></i> Limpar
                     </a>
                 </form>
-
 
 
                 <div class="table-responsive">

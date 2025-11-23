@@ -53,4 +53,20 @@ public class ProdutoController {
         repository.atualizar(produto);
         return new ModelAndView("redirect:/produto/list");
     }
+
+
+    @GetMapping("/filtrar")
+    public ModelAndView filtrar(String nome, ModelMap model) {
+
+        if (nome == null || nome.trim().isEmpty()) {
+            model.addAttribute("produtos", repository.produtos());
+        } else {
+            model.addAttribute("produtos", repository.buscarPorNome(nome));
+        }
+
+        model.addAttribute("nome", nome);
+
+        return new ModelAndView("/produto/list", model);
+    }
+
 }

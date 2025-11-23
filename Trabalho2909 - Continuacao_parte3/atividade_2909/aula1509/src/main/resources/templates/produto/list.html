@@ -28,6 +28,28 @@
                     </a>
                 </div>
 
+
+                <!-- Filtro de Nome -->
+                <form th:action="@{/produto/filtrar}" method="get" class="mb-4">
+                    <div class="input-group">
+                        <input type="text"
+                               name="nome"
+                               th:value="${nome}"
+                               class="form-control"
+                               placeholder="Buscar por nome do produto">
+
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+
+                        <a th:href="@{/produto/list}" class="btn btn-secondary">
+                            <i class="bi bi-x-lg"></i> Limpar
+                        </a>
+                    </div>
+                </form>
+
+
+
                 <!-- Tabela de Produtos -->
                 <div class="table-responsive">
                     <table class="table table-hover align-middle text-center mb-0">

@@ -17,30 +17,49 @@ public class VendaRepository {
     private EntityManager em;
 
     public List<Venda> listar() {
-        Query query = em.createQuery("from Venda");
-        return query.getResultList();
+        return em.createQuery("FROM Venda v ORDER BY v.data DESC", Venda.class)
+                .getResultList();
+    }
+
+    public List<Venda> listarPorCliente(Long clienteId) {
+        return em.createQuery("""
+                SELECT v FROM Venda v 
+                WHERE v.cliente.id = :id
+                ORDER BY v.data DESC
+                """, Venda.class)
+                .setParameter("id", clienteId)
+                .getResultList();
+    }
+
+    public List<Venda> listarPorData(LocalDateTime inicio, LocalDateTime fim) {
+        return em.createQuery("""
+                SELECT v FROM Venda v 
+                WHERE v.data BETWEEN :inicio AND :fim
+                ORDER BY v.data DESC
+                """, Venda.class)
+                .setParameter("inicio", inicio)
+                .setParameter("fim", fim)
+                .getResultList();
+    }
+
+    public List<Venda> listarPorClienteEData(Long clienteId, LocalDateTime inicio, LocalDateTime fim) {
+        return em.createQuery("""
+                SELECT v FROM Venda v 
+                WHERE v.cliente.id = :id
+                AND v.data BETWEEN :inicio AND :fim
+                ORDER BY v.data DESC
+                """, Venda.class)
+                .setParameter("id", clienteId)
+                .setParameter("inicio", inicio)
+                .setParameter("fim", fim)
+                .getResultList();
     }
 
     public Venda buscarPorId(Long id) {
         return em.find(Venda.class, id);
     }
 
-    public List<Venda> listarPorData(LocalDate data) {
-        // início do dia selecionado
-        LocalDateTime inicio = data.atStartOfDay();
-
-        // final do dia selecionado (23:59:59.999)
-        LocalDateTime fim = data.atTime(23, 59, 59, 999999999);
-
-        Query query = em.createQuery(
-                "SELECT v FROM Venda v WHERE v.data BETWEEN :inicio AND :fim ORDER BY v.data ASC"
-        );
-
-        query.setParameter("inicio", inicio);
-        query.setParameter("fim", fim);
-
-        return query.getResultList();
-    }
 }
+
 
 
