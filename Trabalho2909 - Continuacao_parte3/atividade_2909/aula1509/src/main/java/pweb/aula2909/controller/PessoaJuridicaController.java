@@ -16,10 +16,20 @@ public class PessoaJuridicaController {
     private PessoaJuridicaRepository repository;
 
     @GetMapping("/list")
-    public ModelAndView listar(ModelMap model) {
-        model.addAttribute("pessoas", repository.pessoasJuridicas());
+    public ModelAndView listar(
+            @RequestParam(value = "filtro", required = false) String filtro,
+            ModelMap model) {
+
+        if (filtro != null && !filtro.isEmpty()) {
+            model.addAttribute("pessoas", repository.filtrarPorRazaoSocial(filtro));
+        } else {
+            model.addAttribute("pessoas", repository.pessoasJuridicas());
+        }
+
+        model.addAttribute("filtro", filtro);
         model.addAttribute("titulo", "Lista de Pessoas Jurídicas");
         model.addAttribute("tipo", "juridica");
+
         return new ModelAndView("pessoa/list", model);
     }
 

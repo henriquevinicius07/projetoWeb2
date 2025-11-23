@@ -41,4 +41,12 @@ public class PessoaFisicaRepository {
             em.remove(pessoa);
         }
     }
+
+    public List<PessoaFisica> filtrarPorNome(String nome) {
+        Query query = em.createQuery("FROM PessoaFisica pf WHERE LOWER(pf.nome) LIKE LOWER(:nome)");
+        query.setParameter("nome", "%" + nome + "%");
+        return query.getResultList();
+    }
+
+
 }

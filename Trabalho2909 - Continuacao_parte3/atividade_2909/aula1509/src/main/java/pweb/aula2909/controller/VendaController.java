@@ -6,9 +6,12 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import pweb.aula2909.model.entity.Venda;
 import pweb.aula2909.model.repository.VendaRepository;
+
+import java.time.LocalDate;
 
 @Controller
 @RequestMapping("/venda")
@@ -18,8 +21,16 @@ public class VendaController {
     private VendaRepository repository;
 
     @GetMapping("/list")
-    public ModelAndView listar(ModelMap model) {
-        model.addAttribute("vendas", repository.listar()); // usar listar()
+    public ModelAndView listar(String data, ModelMap model) {
+
+        if (data != null && !data.isEmpty()) {
+            LocalDate dataConvertida = LocalDate.parse(data);
+            model.addAttribute("vendas", repository.listarPorData(dataConvertida));
+            model.addAttribute("dataFiltro", data); // devolve no input
+        } else {
+            model.addAttribute("vendas", repository.listar());
+        }
+
         return new ModelAndView("/venda/list", model);
     }
 

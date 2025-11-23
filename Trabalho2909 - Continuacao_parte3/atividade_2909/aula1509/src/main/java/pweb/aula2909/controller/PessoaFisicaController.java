@@ -16,10 +16,20 @@ public class PessoaFisicaController {
     private PessoaFisicaRepository repository;
 
     @GetMapping("/list")
-    public ModelAndView listar(ModelMap model) {
-        model.addAttribute("pessoas", repository.pessoasFisicas());
+    public ModelAndView listar(
+            @RequestParam(value = "filtro", required = false) String filtro,
+            ModelMap model) {
+
+        if (filtro != null && !filtro.isEmpty()) {
+            model.addAttribute("pessoas", repository.filtrarPorNome(filtro));
+        } else {
+            model.addAttribute("pessoas", repository.pessoasFisicas());
+        }
+
+        model.addAttribute("filtro", filtro);
         model.addAttribute("titulo", "Lista de Pessoas Físicas");
         model.addAttribute("tipo", "fisica");
+
         return new ModelAndView("pessoa/list", model);
     }
 

@@ -46,4 +46,12 @@ public class PessoaJuridicaRepository {
             em.remove(pessoa);
         }
     }
+
+    public List<PessoaJuridica> filtrarPorRazaoSocial(String nome) {
+        Query query = em.createQuery("FROM PessoaJuridica pj WHERE LOWER(pj.razaoSocial) LIKE LOWER(:nome)");
+        query.setParameter("nome", "%" + nome + "%");
+        return query.getResultList();
+    }
+
+
 }

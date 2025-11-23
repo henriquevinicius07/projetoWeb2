@@ -4,13 +4,11 @@
 
 <head th:replace="~{fragments/head :: head('Lista de Pessoas')}"></head>
 
-
 <main>
     <div class="container my-4">
-        <!-- Card principal -->
+
         <div class="card shadow-lg border-0">
 
-            <!-- Cabeçalho -->
             <div class="card-header bg-primary text-white text-center py-3">
                 <h2 class="mb-0">
                     <i th:class="${tipo == 'fisica'} ? 'bi bi-people-fill me-2' : 'bi bi-building-add me-2'"></i>
@@ -19,10 +17,8 @@
                 </h2>
             </div>
 
-            <!-- Corpo -->
             <div class="card-body">
 
-                <!-- Botões -->
                 <div class="d-flex justify-content-center flex-wrap gap-2 mb-4">
                     <a th:if="${tipo == 'fisica'}" th:href="@{/pessoafisica/form}" class="btn btn-success">
                         <i class="bi bi-person-plus-fill me-2"></i> Nova Pessoa Física
@@ -41,7 +37,18 @@
                     </a>
                 </div>
 
-                <!-- Tabela -->
+
+                <form method="get" class="d-flex justify-content-center mb-3">
+                    <input type="text" name="filtro" class="form-control w-50"
+                           placeholder="Buscar por nome..."
+                           th:value="${filtro}">
+                    <button class="btn btn-primary ms-2">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </form>
+
+
+
                 <div class="table-responsive">
                     <table class="table table-hover align-middle text-center mb-0">
                         <thead class="table-primary">
@@ -64,7 +71,6 @@
                             <td>
                                 <div class="d-flex justify-content-center gap-2">
 
-                                    <!-- Ações para Pessoa Física -->
                                     <a th:if="${tipo == 'fisica'}"
                                        th:href="@{/pessoafisica/editar/{id}(id=${pessoa.id})}"
                                        class="btn btn-warning btn-sm text-dark">
@@ -77,7 +83,6 @@
                                         <i class="bi bi-trash"></i> Excluir
                                     </a>
 
-                                    <!-- Ações para Pessoa Jurídica -->
                                     <a th:if="${tipo == 'juridica'}"
                                        th:href="@{/pessoajuridica/editar/{id}(id=${pessoa.id})}"
                                        class="btn btn-warning btn-sm text-dark">
@@ -93,7 +98,6 @@
                             </td>
                         </tr>
 
-                        <!-- Caso não tenha pessoas -->
                         <tr th:if="${#lists.isEmpty(pessoas)}">
                             <td colspan="6" class="text-muted fst-italic py-3">
                                 Nenhuma pessoa cadastrada.
