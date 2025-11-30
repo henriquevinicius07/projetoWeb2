@@ -2,11 +2,9 @@ package pweb.aula2909.model.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import pweb.aula2909.model.entity.Venda;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,6 +17,15 @@ public class VendaRepository {
     public List<Venda> listar() {
         return em.createQuery("FROM Venda v ORDER BY v.data DESC", Venda.class)
                 .getResultList();
+    }
+
+    public Venda buscarPorId(Long id) {
+        return em.find(Venda.class, id);
+    }
+
+    @Transactional
+    public void salvar(Venda venda) {
+        em.persist(venda);
     }
 
     public List<Venda> listarPorCliente(Long clienteId) {
@@ -53,10 +60,6 @@ public class VendaRepository {
                 .setParameter("inicio", inicio)
                 .setParameter("fim", fim)
                 .getResultList();
-    }
-
-    public Venda buscarPorId(Long id) {
-        return em.find(Venda.class, id);
     }
 
 }

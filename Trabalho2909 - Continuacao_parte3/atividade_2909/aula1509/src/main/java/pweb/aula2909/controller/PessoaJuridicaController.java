@@ -27,7 +27,6 @@ public class PessoaJuridicaController {
         }
 
         model.addAttribute("filtro", filtro);
-        model.addAttribute("titulo", "Lista de Pessoas Jurídicas");
         model.addAttribute("tipo", "juridica");
 
         return new ModelAndView("pessoa/list", model);
@@ -40,7 +39,7 @@ public class PessoaJuridicaController {
     }
 
     @GetMapping("/editar/{id}")
-    public ModelAndView editar(@PathVariable("id") int id, ModelMap model) {
+    public ModelAndView editar(@PathVariable("id") Long id, ModelMap model) {
         model.addAttribute("pessoa", repository.buscarPorId(id));
         return new ModelAndView("/pessoa/juridica", model);
     }
@@ -58,7 +57,7 @@ public class PessoaJuridicaController {
     }
 
     @GetMapping("/remover/{id}")
-    public ModelAndView remover(@PathVariable("id") int id) {
+    public ModelAndView remover(@PathVariable("id") Long id) {
         repository.excluir(id);
         return new ModelAndView("redirect:/pessoajuridica/list");
     }

@@ -37,17 +37,28 @@
                     </a>
                 </div>
 
+                <form th:action="${tipo == 'fisica'} ? @{/pessoafisica/list} : @{/pessoajuridica/list}"
+                      method="get"
+                      class="d-flex justify-content-center mb-4">
+                    <div class="input-group">
 
-                <form method="get" class="d-flex justify-content-center mb-3">
-                    <input type="text" name="filtro" class="form-control w-50"
-                           placeholder="Buscar por nome..."
-                           th:value="${filtro}">
-                    <button class="btn btn-primary ms-2">
-                        <i class="bi bi-search"></i> Buscar
-                    </button>
+                        <input type="text"
+                               name="filtro"
+                               th:value="${filtro}"
+                               class="form-control"
+                               placeholder="Buscar por nome...">
+
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+
+                        <a th:href="${tipo == 'fisica'} ? @{/pessoafisica/list} : @{/pessoajuridica/list}"
+                           class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Limpar
+                        </a>
+
+                    </div>
                 </form>
-
-
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle text-center mb-0">

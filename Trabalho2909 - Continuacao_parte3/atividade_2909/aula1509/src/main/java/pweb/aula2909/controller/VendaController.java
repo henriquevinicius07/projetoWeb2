@@ -9,11 +9,11 @@ import pweb.aula2909.model.entity.Venda;
 import pweb.aula2909.model.repository.VendaRepository;
 import pweb.aula2909.model.repository.PessoaFisicaRepository;
 import pweb.aula2909.model.repository.PessoaJuridicaRepository;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Controller
 @RequestMapping("/venda")
@@ -28,56 +28,70 @@ public class VendaController {
     @Autowired
     private PessoaJuridicaRepository pessoaJuridicaRepo;
 
-    // ============================================================
-    // LISTA DE VENDAS (COM FILTRO)
-    // ============================================================
-    @GetMapping("/list")
-    public ModelAndView listar(
-            @RequestParam(required = false) Long clienteId,
-            @RequestParam(required = false) String data,
-            ModelMap model) {
+    private LocalDateTime[] intervaloDia(String inicioData, String fimData) {
+        LocalDate dtInicio;
+        LocalDate dtFim;
 
-        List<Venda> vendas;
+        if (inicioData != null && !inicioData.isEmpty()) {
+            dtInicio = LocalDate.parse(inicioData);
+        } else if (fimData != null && !fimData.isEmpty()) {
+            dtInicio = LocalDate.parse(fimData);
+        } else {
+            dtInicio = LocalDate.of(1, 1, 1);
+        }
 
-        // -----------------------------------------------------------
-        // 🔹 LISTA UNIFICADA DE CLIENTES (PF + PJ)
-        // -----------------------------------------------------------
+        if (fimData != null && !fimData.isEmpty()) {
+            dtFim = LocalDate.parse(fimData);
+        } else if (inicioData != null && !inicioData.isEmpty()) {
+            dtFim = LocalDate.parse(inicioData);
+        } else {
+            dtFim = LocalDate.now();
+        }
+
+        return new LocalDateTime[]{
+                dtInicio.atTime(0,0,0),
+                dtFim.atTime(23, 59, 59)
+        };
+    }
+
+
+    private List<Object> carregarClientes() {
         List<Object> clientes = new ArrayList<>();
         clientes.addAll(pessoaFisicaRepo.pessoasFisicas());
         clientes.addAll(pessoaJuridicaRepo.pessoasJuridicas());
+        return clientes;
+    }
 
-        model.addAttribute("clientes", clientes);
 
-        // -----------------------------------------------------------
-        // 🔹 APLICAÇÃO DOS FILTROS
-        // -----------------------------------------------------------
-        if (clienteId != null && data != null && !data.isEmpty()) {
+    @GetMapping("/list")
+    public ModelAndView listar(@RequestParam(required = false) Long clienteId, @RequestParam(required = false) String dataInicio, @RequestParam(required = false) String dataFim, ModelMap model) {
 
-            LocalDate dt = LocalDate.parse(data);
-            LocalDateTime inicio = dt.atStartOfDay();
-            LocalDateTime fim = dt.atTime(23, 59, 59);
+        List<Venda> vendas;
 
-            vendas = repository.listarPorClienteEData(clienteId, inicio, fim);
+        model.addAttribute("clientes", carregarClientes());
 
+        boolean temCliente = clienteId != null;
+        boolean temData = ( (dataInicio != null && !dataInicio.isEmpty()) || (dataFim != null && !dataFim.isEmpty()) );
+
+        if (temCliente && temData) {
+            LocalDateTime[] intervalo = intervaloDia(dataInicio, dataFim);
+            vendas = repository.listarPorClienteEData(clienteId, intervalo[0], intervalo[1]);
             model.addAttribute("clienteFiltro", clienteId);
-            model.addAttribute("dataFiltro", data);
+            model.addAttribute("dataInicioFiltro", dataInicio);
+            model.addAttribute("dataFimFiltro", dataFim);
 
-        } else if (clienteId != null) {
-
+        } else if (temCliente) {
             vendas = repository.listarPorCliente(clienteId);
             model.addAttribute("clienteFiltro", clienteId);
 
-        } else if (data != null && !data.isEmpty()) {
+        } else if (temData) {
 
-            LocalDate dt = LocalDate.parse(data);
-            LocalDateTime inicio = dt.atStartOfDay();
-            LocalDateTime fim = dt.atTime(23, 59, 59);
-
-            vendas = repository.listarPorData(inicio, fim);
-            model.addAttribute("dataFiltro", data);
+            LocalDateTime[] intervalo = intervaloDia(dataInicio, dataFim);
+            vendas = repository.listarPorData(intervalo[0], intervalo[1]);
+            model.addAttribute("dataInicioFiltro", dataInicio);
+            model.addAttribute("dataFimFiltro", dataFim);
 
         } else {
-
             vendas = repository.listar();
         }
 
@@ -86,16 +100,14 @@ public class VendaController {
         return new ModelAndView("/venda/list", model);
     }
 
-    // ============================================================
-    // DETALHE DA VENDA (CORRIGIDO)
-    // ============================================================
     @GetMapping("/detail/{id}")
     public ModelAndView detalhes(@PathVariable("id") Long id, ModelMap model) {
         Venda venda = repository.buscarPorId(id);
+
         if (venda != null) {
             model.addAttribute("venda", venda);
         }
+
         return new ModelAndView("/venda/detail", model);
     }
-
 }

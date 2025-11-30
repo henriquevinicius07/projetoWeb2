@@ -3,10 +3,7 @@ package pweb.aula2909.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import pweb.aula2909.model.entity.Produto;
 import pweb.aula2909.model.repository.ProdutoRepository;
@@ -19,14 +16,23 @@ public class ProdutoController {
     private ProdutoRepository repository;
 
     @GetMapping("/list")
-    public ModelAndView listar(ModelMap model) {
-        model.addAttribute("produtos", repository.produtos());
+    public ModelAndView listar(@RequestParam(value = "filtro", required = false) String filtro, ModelMap model) {
+
+        if (filtro != null && !filtro.isEmpty()) {
+            model.addAttribute("produtos", repository.buscarPorNome(filtro));
+        } else {
+            model.addAttribute("produtos", repository.produtos());
+        }
+
+        model.addAttribute("filtro", filtro);
+        model.addAttribute("tipo", "produto");
+
         return new ModelAndView("/produto/list", model);
     }
 
-    @GetMapping("/novoProduto")
-    public ModelAndView novoProduto(ModelMap model) {
-        model.addAttribute("produto", new Produto());
+    @GetMapping("/form")
+    public ModelAndView novoProduto(Produto produto, ModelMap model) {
+        model.addAttribute("produto", produto);
         return new ModelAndView("/produto/form", model);
     }
 
@@ -37,8 +43,14 @@ public class ProdutoController {
     }
 
     @PostMapping("/salvar")
-    public ModelAndView salvar(Produto produto) {
+    public ModelAndView salvar(@ModelAttribute("produto") Produto produto) {
         repository.salvar(produto);
+        return new ModelAndView("redirect:/produto/list");
+    }
+
+    @PostMapping("/atualizar")
+    public ModelAndView atualizar(@ModelAttribute("produto") Produto produto) {
+        repository.atualizar(produto);
         return new ModelAndView("redirect:/produto/list");
     }
 
@@ -46,27 +58,6 @@ public class ProdutoController {
     public ModelAndView remover(@PathVariable("id") Long id) {
         repository.excluir(id);
         return new ModelAndView("redirect:/produto/list");
-    }
-
-    @PostMapping("/atualizar")
-    public ModelAndView atualizar(Produto produto) {
-        repository.atualizar(produto);
-        return new ModelAndView("redirect:/produto/list");
-    }
-
-
-    @GetMapping("/filtrar")
-    public ModelAndView filtrar(String nome, ModelMap model) {
-
-        if (nome == null || nome.trim().isEmpty()) {
-            model.addAttribute("produtos", repository.produtos());
-        } else {
-            model.addAttribute("produtos", repository.buscarPorNome(nome));
-        }
-
-        model.addAttribute("nome", nome);
-
-        return new ModelAndView("/produto/list", model);
     }
 
 }

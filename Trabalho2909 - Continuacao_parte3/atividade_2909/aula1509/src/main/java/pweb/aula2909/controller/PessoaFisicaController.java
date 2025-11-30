@@ -16,9 +16,7 @@ public class PessoaFisicaController {
     private PessoaFisicaRepository repository;
 
     @GetMapping("/list")
-    public ModelAndView listar(
-            @RequestParam(value = "filtro", required = false) String filtro,
-            ModelMap model) {
+    public ModelAndView listar(@RequestParam(value = "filtro", required = false) String filtro, ModelMap model) {
 
         if (filtro != null && !filtro.isEmpty()) {
             model.addAttribute("pessoas", repository.filtrarPorNome(filtro));
@@ -27,7 +25,6 @@ public class PessoaFisicaController {
         }
 
         model.addAttribute("filtro", filtro);
-        model.addAttribute("titulo", "Lista de Pessoas Físicas");
         model.addAttribute("tipo", "fisica");
 
         return new ModelAndView("pessoa/list", model);
@@ -40,7 +37,7 @@ public class PessoaFisicaController {
     }
 
     @GetMapping("/editar/{id}")
-    public ModelAndView editar(@PathVariable("id") int id, ModelMap model) {
+    public ModelAndView editar(@PathVariable("id") Long id, ModelMap model) {
         model.addAttribute("pessoa", repository.buscarPorId(id));
         return new ModelAndView("/pessoa/fisica", model);
     }
@@ -58,8 +55,9 @@ public class PessoaFisicaController {
     }
 
     @GetMapping("/remover/{id}")
-    public ModelAndView remover(@PathVariable("id") int id) {
+    public ModelAndView remover(@PathVariable("id") Long id) {
         repository.excluir(id);
         return new ModelAndView("redirect:/pessoafisica/list");
     }
+
 }

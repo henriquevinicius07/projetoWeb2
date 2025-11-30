@@ -22,9 +22,10 @@ public class PessoaJuridicaRepository {
     }
 
     // Buscar por ID
-    public PessoaJuridica buscarPorId(int id){
+    public PessoaJuridica buscarPorId(Long id){
         return em.find(PessoaJuridica.class, id);
     }
+
 
     // Salvar
     @Transactional
@@ -40,7 +41,7 @@ public class PessoaJuridicaRepository {
 
     // Excluir
     @Transactional
-    public void excluir(int id) {
+    public void excluir(Long id) {
         PessoaJuridica pessoa = buscarPorId(id);
         if (pessoa != null) {
             em.remove(pessoa);

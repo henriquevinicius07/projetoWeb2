@@ -4,37 +4,30 @@
 
 <head th:replace="~{fragments/head :: head('Lista de Produtos')}"></head>
 
-
 <main class="flex-grow-1">
     <div class="container my-4">
 
-        <!-- Card principal -->
         <div class="card shadow-lg border-0">
 
-            <!-- Cabeçalho -->
             <div class="card-header bg-primary text-white text-center py-3">
                 <h2 class="mb-0">
                     <i class="bi bi-box-seam me-2"></i>Lista de Produtos
                 </h2>
             </div>
 
-            <!-- Corpo -->
             <div class="card-body">
 
-                <!-- Botão Novo Produto -->
                 <div class="d-flex justify-content-center flex-wrap gap-2 mb-4">
-                    <a th:href="@{/produto/novoProduto}" class="btn btn-success">
+                    <a th:href="@{/produto/form}" class="btn btn-success">
                         <i class="bi bi-plus-circle me-2"></i>Cadastrar Novo Produto
                     </a>
                 </div>
 
-
-                <!-- Filtro de Nome -->
-                <form th:action="@{/produto/filtrar}" method="get" class="mb-4">
+                <form th:action="@{/produto/list}" method="get" class="mb-4">
                     <div class="input-group">
                         <input type="text"
-                               name="nome"
-                               th:value="${nome}"
+                               name="filtro"
+                               th:value="${filtro}"
                                class="form-control"
                                placeholder="Buscar por nome do produto">
 
@@ -43,14 +36,11 @@
                         </button>
 
                         <a th:href="@{/produto/list}" class="btn btn-secondary">
-                            <i class="bi bi-x-lg"></i> Limpar
+                            <i class="bi bi-x-circle"></i> Limpar
                         </a>
                     </div>
                 </form>
 
-
-
-                <!-- Tabela de Produtos -->
                 <div class="table-responsive">
                     <table class="table table-hover align-middle text-center mb-0">
                         <thead class="table-primary">
@@ -58,22 +48,26 @@
                             <th>ID</th>
                             <th>Descrição</th>
                             <th>Valor (R$)</th>
-                            <th colspan="2">Ações</th>
+                            <th colspan="3">Ações</th>
                         </tr>
                         </thead>
+
                         <tbody>
                         <tr th:each="p : ${produtos}">
                             <td th:text="${p.id}"></td>
                             <td th:text="${p.descricao}"></td>
                             <td>
-                                R$ <span th:text="${#numbers.formatDecimal(p.valor, 2, 'POINT', 2, 'COMMA')}"></span>
+                                R$
+                                <span th:text="${#numbers.formatDecimal(p.valor, 2, 'POINT', 2, 'COMMA')}"></span>
                             </td>
+
                             <td>
                                 <a th:href="@{/produto/editar/{id}(id=${p.id})}"
                                    class="btn btn-warning btn-sm text-dark">
                                     <i class="bi bi-pencil-square me-1"></i>Editar
                                 </a>
                             </td>
+
                             <td>
                                 <a th:href="@{/produto/remover/{id}(id=${p.id})}"
                                    class="btn btn-danger btn-sm"
@@ -83,7 +77,6 @@
                             </td>
                         </tr>
 
-                        <!-- Caso não haja produtos -->
                         <tr th:if="${#lists.isEmpty(produtos)}">
                             <td colspan="5" class="text-muted fst-italic">
                                 Nenhum produto cadastrado.

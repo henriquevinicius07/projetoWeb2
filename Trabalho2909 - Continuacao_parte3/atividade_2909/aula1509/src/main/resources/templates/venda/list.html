@@ -24,11 +24,10 @@
                 </div>
 
 
-                <!-- FORMULÁRIO ÚNICO DE FILTRO -->
+
                 <form class="d-flex justify-content-center mb-4 flex-wrap gap-2"
                       method="get" th:action="@{/venda/list}">
 
-                    <!-- FILTRAR POR CLIENTE -->
                     <select name="clienteId" class="btn btn-primary">
                         <option value="">Todos os clientes</option>
                         <option th:each="c : ${clientes}"
@@ -37,12 +36,18 @@
                                 th:text="${c.nomeExibicao}"></option>
                     </select>
 
-                    <!-- FILTRAR POR DATA -->
                     <input
                             type="date"
-                            name="data"
-                            class="form-control w-auto me-2"
-                            th:value="${dataFiltro}"
+                            name="dataInicio"
+                            class="form-control w-auto"
+                            th:value="${dataInicioFiltro}"
+                    >
+
+                    <input
+                            type="date"
+                            name="dataFim"
+                            class="form-control w-auto"
+                            th:value="${dataFimFiltro}"
                     >
 
                     <button type="submit" class="btn btn-primary">

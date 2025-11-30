@@ -20,9 +20,10 @@ public class PessoaFisicaRepository {
         return query.getResultList();
     }
 
-    public PessoaFisica buscarPorId(int id){
+    public PessoaFisica buscarPorId(Long id){
         return em.find(PessoaFisica.class, id);
     }
+
 
     @Transactional
     public void salvar(PessoaFisica pessoa) {
@@ -35,7 +36,7 @@ public class PessoaFisicaRepository {
     }
 
     @Transactional
-    public void excluir(int id) {
+    public void excluir(Long id) {
         PessoaFisica pessoa = buscarPorId(id);
         if (pessoa != null) {
             em.remove(pessoa);
