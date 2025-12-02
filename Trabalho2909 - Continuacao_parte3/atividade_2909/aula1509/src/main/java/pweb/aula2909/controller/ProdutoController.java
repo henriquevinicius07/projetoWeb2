@@ -1,5 +1,6 @@
 package pweb.aula2909.controller;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -25,9 +26,21 @@ public class ProdutoController {
         }
 
         model.addAttribute("filtro", filtro);
-        model.addAttribute("tipo", "produto");
-
         return new ModelAndView("/produto/list", model);
+    }
+
+    @GetMapping("/listVenda")
+    public ModelAndView listarParaVenda(ModelMap model, HttpSession session) {
+
+        model.addAttribute("produtos", repository.produtos());
+
+        Object msg = session.getAttribute("msgSucesso");
+        if (msg != null) {
+            model.addAttribute("msgSucesso", msg.toString());
+            session.removeAttribute("msgSucesso");
+        }
+
+        return new ModelAndView("/produto/listVenda", model);
     }
 
     @GetMapping("/form")
@@ -37,7 +50,7 @@ public class ProdutoController {
     }
 
     @GetMapping("/editar/{id}")
-    public ModelAndView editar(@PathVariable("id") Long id, ModelMap model) {
+    public ModelAndView editar(@PathVariable Long id, ModelMap model) {
         model.addAttribute("produto", repository.buscarPorId(id));
         return new ModelAndView("/produto/form", model);
     }
@@ -49,15 +62,14 @@ public class ProdutoController {
     }
 
     @PostMapping("/atualizar")
-    public ModelAndView atualizar(@ModelAttribute("produto") Produto produto) {
+    public ModelAndView atualizar(@ModelAttribute Produto produto) {
         repository.atualizar(produto);
         return new ModelAndView("redirect:/produto/list");
     }
 
     @GetMapping("/remover/{id}")
-    public ModelAndView remover(@PathVariable("id") Long id) {
+    public ModelAndView remover(@PathVariable Long id) {
         repository.excluir(id);
         return new ModelAndView("redirect:/produto/list");
     }
-
 }

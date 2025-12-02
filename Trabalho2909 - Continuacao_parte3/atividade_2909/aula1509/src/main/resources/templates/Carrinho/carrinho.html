@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+      th:replace="~{layout :: layout(~{::head}, ~{::main})}">
+
+<head th:replace="~{fragments/head :: head('Carrinho de Compras')}"></head>
+
+<main>
+    <div class="container my-4">
+
+        <div class="card shadow-lg border-0">
+
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h2 class="mb-0">
+                    <i class="bi bi-cart-check-fill me-2"></i>
+                    Carrinho de Compras
+                </h2>
+            </div>
+
+            <div class="card-body">
+
+                <div class="table-responsive mb-4">
+                    <table class="table table-striped text-center align-middle">
+                        <thead class="table-primary">
+                        <tr>
+                            <th>Produto</th>
+                            <th>Valor Unitário</th>
+                            <th>Qtd.</th>
+                            <th>Total</th>
+                            <th>Ações</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+
+                        <tr th:each="item : ${itens}">
+                            <td th:text="${item.produto.descricao}">Produto</td>
+
+                            <td>
+                                R$
+                                <span th:text="${#numbers.formatDecimal(item.produto.valor, 2, 'POINT', 2, 'COMMA')}">
+                                    0,00
+                                </span>
+                            </td>
+
+                            <!-- Atualizar quantidade -->
+                            <td>
+                                <form th:action="@{/carrinho/update/{id}(id=${item.produto.id})}"
+                                      method="post"
+                                      class="d-flex justify-content-center">
+                                    <input type="number" step="0.1" min="0.1"
+                                           name="qtd"
+                                           th:value="${item.quantidade}"
+                                           class="form-control form-control-sm me-2"
+                                           style="max-width:90px">
+
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                    </button>
+                                </form>
+                            </td>
+
+                            <td>
+                                R$
+                                <span th:text="${#numbers.formatDecimal(item.total, 2, 'POINT', 2, 'COMMA')}">
+                                    0,00
+                                </span>
+                            </td>
+
+                            <td>
+                                <form th:action="@{/carrinho/remove/{id}(id=${item.produto.id})}" method="post">
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+
+
+                        <tr th:if="${#lists.isEmpty(itens)}">
+                            <td colspan="5" class="text-muted fst-italic py-3">
+                                <i class="bi bi-cart-x fs-4 me-2"></i>
+                                Nenhum item no carrinho.
+                            </td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(itens)}" class="mt-4">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <h5>Total do Carrinho:</h5>
+                            <p class="fw-bold fs-4 text-success">
+                                <i class="bi bi-cash-coin me-1"></i>
+                                R$
+                                <span th:text="${#numbers.formatDecimal(total, 2, 'POINT', 2, 'COMMA')}">0,00</span>
+                            </p>
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <h5>Finalizar Compra</h5>
+
+                            <form th:action="@{/carrinho/finalizar}" method="post" class="row g-2">
+
+                                <div class="col-12">
+                                    <label for="clienteId" class="form-label">
+                                        <i class="bi bi-person-badge-fill me-1"></i> Cliente
+                                    </label>
+
+                                    <select id="clienteId" name="clienteId" class="form-select" required>
+                                        <option value="">Selecione um cliente</option>
+                                        <option th:each="c : ${clientes}"
+                                                th:value="${c.id}"
+                                                th:text="${c.nomeExibicao}">
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12 text-end">
+                                    <button type="submit" class="btn btn-success px-4">
+                                        <i class="bi bi-check2-circle me-2"></i>Finalizar Compra
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/produto/listVenda?from=carrinho" class="btn btn-secondary px-4">
+                <i class="bi bi-arrow-left-circle me-2"></i> Continuar Comprando
+            </a>
+        </div>
+
+    </div>
+</main>
+
+</html>

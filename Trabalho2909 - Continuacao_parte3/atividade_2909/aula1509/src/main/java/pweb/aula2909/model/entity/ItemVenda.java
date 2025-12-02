@@ -1,7 +1,6 @@
 package pweb.aula2909.model.entity;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
 
 @Entity
 public class ItemVenda {
@@ -9,8 +8,6 @@ public class ItemVenda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private Double quantidade;
 
     @ManyToOne
     @JoinColumn(name = "produto_id")
@@ -20,20 +17,15 @@ public class ItemVenda {
     @JoinColumn(name = "venda_id")
     private Venda venda;
 
+    @Column(nullable = false)
+    private Double quantidade;
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Double getQuantidade() {
-        return quantidade;
-    }
-
-    public void setQuantidade(Double quantidade) {
-        this.quantidade = quantidade;
     }
 
     public Produto getProduto() {
@@ -52,10 +44,19 @@ public class ItemVenda {
         this.venda = venda;
     }
 
-    public BigDecimal getTotal() {
-        if (produto == null || produto.getValor() == 0 || quantidade == null) {
-            return BigDecimal.ZERO;
+    public Double getQuantidade() {
+        return quantidade;
+    }
+
+    public void setQuantidade(Double quantidade) {
+        this.quantidade = quantidade;
+    }
+
+    @Transient
+    public Double getTotal() {
+        if (produto == null || produto.getValor() == null || quantidade == null) {
+            return 0.0;
         }
-        return BigDecimal.valueOf(produto.getValor() * quantidade);
+        return produto.getValor() * quantidade;
     }
 }

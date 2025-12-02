@@ -1,7 +1,7 @@
 <header th:fragment="header" xmlns:th="http://www.thymeleaf.org">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="/">Cadastro Web II</a>
+            <a class="navbar-brand fw-bold" th:href="@{/}">Cadastro Web II</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarNav" aria-controls="navbarNav"
                     aria-expanded="false" aria-label="Alternar navegação">
@@ -12,7 +12,20 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item fw-bold"><a class="nav-link" th:href="@{/pessoafisica/list}">Pessoas Físicas</a></li>
                     <li class="nav-item fw-bold"><a class="nav-link" th:href="@{/pessoajuridica/list}">Pessoas Jurídicas</a></li>
-                    <li class="nav-item fw-bold"><a class="nav-link" th:href="@{/produto/list}">Produtos</a></li>
+
+                    <li class="nav-item dropdown fw-bold">
+                        <a class="nav-link dropdown-toggle" href="#" id="produtosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Produtos
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="produtosDropdown">
+                            <li><a class="dropdown-item" th:href="@{/produto/list}">Lista de Produtos Cadastrados</a></li>
+                            <li><hr class="dropdown-divider"></li>
+
+                            <li><a class="dropdown-item" th:href="@{/produto/listVenda}">Produtos para Venda</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                        </ul>
+                    </li>
+
                     <li class="nav-item fw-bold"><a class="nav-link" th:href="@{/venda/list}">Vendas</a></li>
                 </ul>
             </div>

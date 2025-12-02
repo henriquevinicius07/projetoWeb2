@@ -6,6 +6,7 @@ import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 import pweb.aula2909.model.entity.Produto;
+
 import java.util.List;
 
 @Repository
@@ -15,11 +16,11 @@ public class ProdutoRepository {
     private EntityManager em;
 
     public List<Produto> produtos() {
-        Query query = em.createQuery("from Produto");
-        return query.getResultList();
+        Query q = em.createQuery("from Produto");
+        return q.getResultList();
     }
 
-    public Produto buscarPorId(Long id){
+    public Produto buscarPorId(Long id) {
         return em.find(Produto.class, id);
     }
 
@@ -35,18 +36,13 @@ public class ProdutoRepository {
 
     @Transactional
     public void excluir(Long id) {
-        Produto produto = buscarPorId(id);
-        if (produto != null) {
-            em.remove(produto);
-        }
+        Produto p = buscarPorId(id);
+        if (p != null) em.remove(p);
     }
 
     public List<Produto> buscarPorNome(String nome) {
-        String hql = "from Produto p where lower(p.descricao) like lower(:nome)";
-        Query query = em.createQuery(hql);
-        query.setParameter("nome", "%" + nome + "%");
-        return query.getResultList();
+        Query q = em.createQuery("from Produto p where lower(p.descricao) like lower(:nome)");
+        q.setParameter("nome", "%" + nome + "%");
+        return q.getResultList();
     }
-
-
 }
