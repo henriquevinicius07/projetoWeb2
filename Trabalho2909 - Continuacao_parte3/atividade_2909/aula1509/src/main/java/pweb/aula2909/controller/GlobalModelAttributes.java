@@ -19,7 +19,7 @@ public class GlobalModelAttributes {
                 List<ItemVenda> carrinho = (List<ItemVenda>) o;
                 return carrinho.size();
             } catch (ClassCastException e) {
-                // se houver problema de cast, retornar 0
+                return 0;
             }
         }
         return 0;
