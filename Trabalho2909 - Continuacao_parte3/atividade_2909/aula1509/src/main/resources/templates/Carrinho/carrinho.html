@@ -42,21 +42,14 @@
                                 </span>
                             </td>
 
-                            <!-- Atualizar quantidade -->
                             <td>
-                                <form th:action="@{/carrinho/update/{id}(id=${item.produto.id})}"
-                                      method="post"
-                                      class="d-flex justify-content-center">
-                                    <input type="number" step="0.1" min="0.1"
-                                           name="qtd"
-                                           th:value="${item.quantidade}"
-                                           class="form-control form-control-sm me-2"
-                                           style="max-width:90px">
+                                <input type="number"
+                                       min="1"
+                                       class="form-control text-center qtd-input"
+                                       th:value="${item.quantidade}"
+                                       th:data-id="${item.produto.id}"
+                                       style="width: 80px;">
 
-                                    <button class="btn btn-primary btn-sm">
-                                        <i class="bi bi-arrow-repeat"></i>
-                                    </button>
-                                </form>
                             </td>
 
                             <td>
@@ -75,7 +68,6 @@
                             </td>
                         </tr>
 
-
                         <tr th:if="${#lists.isEmpty(itens)}">
                             <td colspan="5" class="text-muted fst-italic py-3">
                                 <i class="bi bi-cart-x fs-4 me-2"></i>
@@ -88,7 +80,6 @@
                 </div>
 
                 <div th:if="${!#lists.isEmpty(itens)}" class="mt-4">
-
                     <div class="row">
 
                         <div class="col-md-6 mb-3">
@@ -96,12 +87,13 @@
                             <p class="fw-bold fs-4 text-success">
                                 <i class="bi bi-cash-coin me-1"></i>
                                 R$
-                                <span th:text="${#numbers.formatDecimal(total, 2, 'POINT', 2, 'COMMA')}">0,00</span>
+                                <span th:text="${#numbers.formatDecimal(total, 2, 'POINT', 2, 'COMMA')}">
+                                    0,00
+                                </span>
                             </p>
                         </div>
 
                         <div class="col-md-6">
-
                             <h5>Finalizar Compra</h5>
 
                             <form th:action="@{/carrinho/finalizar}" method="post" class="row g-2">
@@ -122,7 +114,8 @@
 
                                 <div class="col-12 text-end">
                                     <button type="submit" class="btn btn-success px-4">
-                                        <i class="bi bi-check2-circle me-2"></i>Finalizar Compra
+                                        <i class="bi bi-check2-circle me-2"></i>
+                                        Finalizar Compra
                                     </button>
                                 </div>
 
@@ -130,20 +123,45 @@
                         </div>
 
                     </div>
-
                 </div>
 
             </div>
-
         </div>
 
         <div class="text-center mt-4">
             <a href="/produto/listVenda?from=carrinho" class="btn btn-secondary px-4">
-                <i class="bi bi-arrow-left-circle me-2"></i> Continuar Comprando
+                <i class="bi bi-arrow-left-circle me-2"></i>
+                Continuar Comprando
             </a>
         </div>
 
     </div>
+
+    <script>
+        document.querySelectorAll('.qtd-input').forEach(input => {
+            let timeout = null;
+
+            input.addEventListener('input', function () {
+                clearTimeout(timeout);
+
+                timeout = setTimeout(() => {
+                    let quantidade = parseInt(this.value);
+
+                    if (isNaN(quantidade) || quantidade < 1) {
+                        quantidade = 1;
+                        this.value = 1;
+                    }
+
+                    fetch('/carrinho/update/' + this.dataset.id + '?quantidade=' + quantidade, {
+                        method: 'POST'
+                    }).then(() => window.location.reload());
+
+                }, 600);
+            });
+        });
+    </script>
+
+
 </main>
 
 </html>
