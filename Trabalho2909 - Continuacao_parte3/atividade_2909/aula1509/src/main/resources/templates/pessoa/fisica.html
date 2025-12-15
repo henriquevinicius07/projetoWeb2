@@ -28,22 +28,30 @@
 
                         <div class="mb-3">
                             <label for="nome" class="form-label"><i class="bi bi-person me-2"></i>Nome</label>
-                            <input id="nome" type="text" th:field="*{nome}" class="form-control" placeholder="Nome completo">
+                            <input id="nome" type="text" th:field="*{nome}" class="form-control" placeholder="Nome completo"
+                                   th:classappend="${#fields.hasErrors('nome')} ? ' is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
                         </div>
 
                         <div class="mb-3">
                             <label for="cpf" class="form-label"><i class="bi bi-credit-card-2-front me-2"></i>CPF</label>
-                            <input id="cpf" type="text" th:field="*{cpf}" class="form-control" placeholder="CPF">
+                            <input id="cpf" type="text" th:field="*{cpf}" class="form-control" placeholder="CPF"
+                                   th:classappend="${#fields.hasErrors('cpf')} ? ' is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('cpf')}" th:errors="*{cpf}"></div>
                         </div>
 
                         <div class="mb-3">
                             <label for="email" class="form-label"><i class="bi bi-envelope me-2"></i>Email</label>
-                            <input id="email" type="text" th:field="*{email}" class="form-control" placeholder="E-mail">
+                            <input id="email" type="text" th:field="*{email}" class="form-control" placeholder="E-mail"
+                                   th:classappend="${#fields.hasErrors('email')} ? ' is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
                         </div>
 
                         <div class="mb-3">
                             <label for="telefone" class="form-label"><i class="bi bi-telephone me-2"></i>Telefone</label>
-                            <input id="telefone" type="text" th:field="*{telefone}" class="form-control" placeholder="Telefone">
+                            <input id="telefone" type="text" th:field="*{telefone}" class="form-control" placeholder="Telefone"
+                                   th:classappend="${#fields.hasErrors('telefone')} ? ' is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('telefone')}" th:errors="*{telefone}"></div>
                         </div>
 
                         <div class="text-center mt-4">

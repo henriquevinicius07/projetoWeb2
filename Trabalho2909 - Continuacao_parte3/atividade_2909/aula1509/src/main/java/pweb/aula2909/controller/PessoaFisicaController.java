@@ -3,6 +3,8 @@ package pweb.aula2909.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import pweb.aula2909.model.entity.PessoaFisica;
@@ -43,13 +45,25 @@ public class PessoaFisicaController {
     }
 
     @PostMapping("/salvar")
-    public ModelAndView salvar(@ModelAttribute("pessoa") PessoaFisica pessoa) {
+    public ModelAndView salvar(@Valid @ModelAttribute("pessoa") PessoaFisica pessoa,
+                               BindingResult result,
+                               ModelMap model) {
+        if (result.hasErrors()) {
+            model.addAttribute("pessoa", pessoa);
+            return new ModelAndView("/pessoa/fisica", model);
+        }
         repository.salvar(pessoa);
         return new ModelAndView("redirect:/pessoafisica/list");
     }
 
     @PostMapping("/atualizar")
-    public ModelAndView atualizar(@ModelAttribute("pessoa") PessoaFisica pessoa) {
+    public ModelAndView atualizar(@Valid @ModelAttribute("pessoa") PessoaFisica pessoa,
+                                  BindingResult result,
+                                  ModelMap model) {
+        if (result.hasErrors()) {
+            model.addAttribute("pessoa", pessoa);
+            return new ModelAndView("/pessoa/fisica", model);
+        }
         repository.atualizar(pessoa);
         return new ModelAndView("redirect:/pessoafisica/list");
     }

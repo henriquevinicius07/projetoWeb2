@@ -2,6 +2,8 @@ package pweb.aula2909.model.entity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 import java.io.Serializable;
 
@@ -13,7 +15,11 @@ public abstract class Pessoa implements Serializable {
     @GeneratedValue(generator = "inc")
     @GenericGenerator(name = "inc", strategy = "increment")
     private Long id;
+
+    @Email(message = "E-mail inválido")
+    @NotBlank(message = "E-mail é obrigatório")
     private String email;
+    @NotBlank(message = "Telefone é obrigatório")
     private String telefone;
 
     public abstract String getNomeExibicao();

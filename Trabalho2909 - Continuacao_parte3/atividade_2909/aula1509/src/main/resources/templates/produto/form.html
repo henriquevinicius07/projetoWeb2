@@ -26,14 +26,18 @@
                     <div class="mb-3">
                         <label for="descricao" class="form-label fw-semibold">Descrição</label>
                         <input id="descricao" type="text" th:field="*{descricao}" class="form-control"
-                               placeholder="Digite a descrição do produto" required>
+                               placeholder="Digite a descrição do produto"
+                               th:classappend="${#fields.hasErrors('descricao')} ? ' is-invalid'">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}"></div>
                     </div>
 
                     <!-- Campo Valor -->
                     <div class="mb-3">
                         <label for="valor" class="form-label fw-semibold">Valor (R$)</label>
                         <input id="valor" type="number" step="0.01" min="0" th:field="*{valor}" class="form-control"
-                               placeholder="Digite o valor do produto" required>
+                               placeholder="Digite o valor do produto"
+                               th:classappend="${#fields.hasErrors('valor')} ? ' is-invalid'">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('valor')}" th:errors="*{valor}"></div>
                     </div>
 
                     <!-- Botões -->
