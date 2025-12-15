@@ -40,7 +40,7 @@ public class CarrinhoController {
     @PostMapping("/add/{id}")
     public ModelAndView adicionarAoCarrinhoPost(
             @PathVariable Long id,
-            @RequestParam(value = "quantidade", required = false) Integer quantidade,
+            @RequestParam(value = "quantidade", required = false) Double quantidade,
             HttpSession session) {
 
         adicionarAoCarrinho(id, quantidade, session);
@@ -51,7 +51,7 @@ public class CarrinhoController {
     @GetMapping("/add/{id}")
     public ModelAndView adicionarAoCarrinhoGet(
             @PathVariable Long id,
-            @RequestParam(value = "quantidade", required = false) Integer quantidade,
+            @RequestParam(value = "quantidade", required = false) Double quantidade,
             HttpSession session) {
 
         adicionarAoCarrinho(id, quantidade, session);
@@ -59,10 +59,10 @@ public class CarrinhoController {
         return new ModelAndView("redirect:/produto/listVenda");
     }
 
-    private void adicionarAoCarrinho(Long id, Integer quantidade, HttpSession session) {
+    private void adicionarAoCarrinho(Long id, Double quantidade, HttpSession session) {
 
         if (quantidade == null || quantidade < 1) {
-            quantidade = 1;
+            quantidade = 1.0;
         }
 
         Produto produto = produtoRepository.buscarPorId(id);
@@ -109,11 +109,11 @@ public class CarrinhoController {
 
     @PostMapping("/update/{id}")
     public String atualizarQuantidade(@PathVariable Long id,
-                                      @RequestParam Integer quantidade,
+                                      @RequestParam Double quantidade,
                                       HttpSession session) {
 
         if (quantidade == null || quantidade < 1) {
-            quantidade = 1;
+            quantidade = 1.0;
         }
 
         List<ItemVenda> carrinho = getCarrinhoFromSession(session);
