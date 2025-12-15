@@ -23,7 +23,7 @@ public class ItemVenda {
 
     @Column(nullable = false)
     @NotNull(message = "Quantidade é obrigatória")
-    @DecimalMin(value = "0.01", message = "Quantidade deve ser maior que zero")
+    @DecimalMin(value = "1", message = "Quantidade deve ser maior que zero")
     private Double quantidade;
 
     public Long getId() {
@@ -57,6 +57,7 @@ public class ItemVenda {
     public void setQuantidade(Double quantidade) {
         this.quantidade = quantidade;
     }
+
 
     @Transient
     public Double getTotal() {
