@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import pweb.aula2909.model.entity.Produto;
@@ -56,13 +58,25 @@ public class ProdutoController {
     }
 
     @PostMapping("/salvar")
-    public ModelAndView salvar(@ModelAttribute("produto") Produto produto) {
+    public ModelAndView salvar(@Valid @ModelAttribute("produto") Produto produto,
+                               BindingResult result,
+                               ModelMap model) {
+        if (result.hasErrors()) {
+            model.addAttribute("produto", produto);
+            return new ModelAndView("/produto/form", model);
+        }
         repository.salvar(produto);
         return new ModelAndView("redirect:/produto/list");
     }
 
     @PostMapping("/atualizar")
-    public ModelAndView atualizar(@ModelAttribute Produto produto) {
+    public ModelAndView atualizar(@Valid @ModelAttribute("produto") Produto produto,
+                                  BindingResult result,
+                                  ModelMap model) {
+        if (result.hasErrors()) {
+            model.addAttribute("produto", produto);
+            return new ModelAndView("/produto/form", model);
+        }
         repository.atualizar(produto);
         return new ModelAndView("redirect:/produto/list");
     }

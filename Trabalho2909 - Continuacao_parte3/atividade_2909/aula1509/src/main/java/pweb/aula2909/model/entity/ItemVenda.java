@@ -1,6 +1,8 @@
 package pweb.aula2909.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class ItemVenda {
@@ -11,13 +13,17 @@ public class ItemVenda {
 
     @ManyToOne
     @JoinColumn(name = "produto_id")
+    @NotNull(message = "Produto é obrigatório")
     private Produto produto;
 
     @ManyToOne
     @JoinColumn(name = "venda_id")
+    @NotNull(message = "Venda é obrigatória")
     private Venda venda;
 
     @Column(nullable = false)
+    @NotNull(message = "Quantidade é obrigatória")
+    @DecimalMin(value = "0.01", message = "Quantidade deve ser maior que zero")
     private Double quantidade;
 
     public Long getId() {
