@@ -45,8 +45,9 @@
                             <td>
                                 <input type="number"
                                        min="1"
+                                       step="1"
                                        class="form-control text-center qtd-input"
-                                       th:value="${item.quantidade}"
+                                       th:value="${#numbers.formatInteger(item.quantidade, 0)}"
                                        th:data-id="${item.produto.id}"
                                        style="width: 80px;">
 
@@ -96,19 +97,23 @@
                         <div class="col-md-6">
                             <h5>Finalizar Compra</h5>
 
-                            <form th:action="@{/carrinho/finalizar}" method="post" class="row g-2">
+                            <div id="alerta-cliente" class="alert alert-danger d-none mb-3" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Selecione um cliente antes de finalizar uma compra
+                            </div>
+
+                            <form id="form-finalizar" th:action="@{/carrinho/finalizar}" method="post" class="row g-2">
 
                                 <div class="col-12">
                                     <label for="clienteId" class="form-label">
                                         <i class="bi bi-person-badge-fill me-1"></i> Cliente
                                     </label>
 
-                                    <select id="clienteId" name="clienteId" class="form-select" required>
+                                    <select id="clienteId" name="clienteId" class="form-select">
                                         <option value="">Selecione um cliente</option>
                                         <option th:each="c : ${clientes}"
                                                 th:value="${c.id}"
-                                                th:text="${c.nomeExibicao}">
-                                        </option>
+                                                th:text="${c.getNomeExibicao()}">Cliente</option>
                                     </select>
                                 </div>
 
@@ -138,20 +143,36 @@
     </div>
 
     <script>
-        document.querySelectorAll('.qtd-input').forEach(input => {
-            let timeout = null;
+        // Controle do alerta de cliente
+        const selectCliente = document.getElementById('clienteId');
+        const alertaCliente = document.getElementById('alerta-cliente');
+        const formFinalizar = document.getElementById('form-finalizar');
+        const qtdInputs = document.querySelectorAll('.qtd-input');
 
-            input.addEventListener('input', function () {
-                clearTimeout(timeout);
+        // Event listener para mudanças no select de cliente
+        selectCliente.addEventListener('change', function () {
+            if (this.value !== '') {
+                // Se um cliente foi selecionado, esconde o alerta
+                alertaCliente.classList.add('d-none');
+            }
+        });
 
-                timeout = setTimeout(() => {
-                    let quantidade = parseInt(this.value);
+        // Event listener para envio do formulário
+        formFinalizar.addEventListener('submit', function (e) {
+            if (selectCliente.value === '') {
+                // Se nenhum cliente foi selecionado, mostra o alerta e cancela o envio
+                e.preventDefault();
+                alertaCliente.classList.remove('d-none');
+            }
+        });
 
-                    if (isNaN(quantidade) || quantidade < 1) {
-                        quantidade = 1;
-                        this.value = 1;
-                    }
-
+        // Event listener para mudança de quantidade
+        qtdInputs.forEach(input => {
+            let timer;
+            input.addEventListener('change', function () {
+                clearTimeout(timer);
+                const quantidade = this.value;
+                timer = setTimeout(() => {
                     fetch('/carrinho/update/' + this.dataset.id + '?quantidade=' + quantidade, {
                         method: 'POST'
                     }).then(() => window.location.reload());
