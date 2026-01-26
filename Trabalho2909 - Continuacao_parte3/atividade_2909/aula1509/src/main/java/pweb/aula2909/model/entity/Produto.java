@@ -22,7 +22,6 @@ public class Produto {
     @NotNull(message = "Valor é obrigatório")
     @DecimalMin(value = "0.01", message = "Valor deve ser maior que zero")
     private Double valor;
-
     private String imagem;
 
     public Long getId() { return id; }
@@ -37,3 +36,4 @@ public class Produto {
     public String getImagem() { return imagem; }
     public void setImagem(String imagem) { this.imagem = imagem; }
 }
+

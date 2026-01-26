@@ -57,7 +57,4 @@ public abstract class Pessoa implements Serializable {
         return (this instanceof PessoaFisica) ? "pessoafisica" : "pessoajuridica";
     }
 
-    public String nomeClasse(){
-        return this.getClass().getSimpleName().toLowerCase();
-    }
 }
