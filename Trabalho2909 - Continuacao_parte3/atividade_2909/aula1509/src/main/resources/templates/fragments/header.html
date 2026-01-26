@@ -1,7 +1,7 @@
-<header th:fragment="header" xmlns:th="http://www.thymeleaf.org">
+<header th:fragment="header" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold" th:href="@{/}">Cadastro Web II</a>
+            <a class="navbar-brand fw-bold" th:href="@{/produto/listVenda}">Loja</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarNav" aria-controls="navbarNav"
                     aria-expanded="false" aria-label="Alternar navegação">
@@ -10,31 +10,60 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item fw-bold"><a class="nav-link" th:href="@{/pessoafisica/list}">Pessoas Físicas</a></li>
-                    <li class="nav-item fw-bold"><a class="nav-link" th:href="@{/pessoajuridica/list}">Pessoas Jurídicas</a></li>
 
-                    <li class="nav-item dropdown fw-bold">
+                    <!-- Produtos Dropdown - Disponível para CLIENTE e ADMIN autenticados -->
+                    <li class="nav-item dropdown fw-bold" sec:authorize="isAuthenticated()">
                         <a class="nav-link dropdown-toggle" href="#" id="produtosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Produtos
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="produtosDropdown">
-                            <li><a class="dropdown-item" th:href="@{/produto/list}">Lista de Produtos Cadastrados</a></li>
-                            <li><hr class="dropdown-divider"></li>
-
                             <li><a class="dropdown-item" th:href="@{/produto/listVenda}">Produtos para Venda</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li sec:authorize="hasRole('ADMIN')"><a class="dropdown-item" th:href="@{/produto/list}">Lista de Produtos Cadastrados</a></li>
+                            <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
                         </ul>
                     </li>
 
-                    <li class="nav-item fw-bold"><a class="nav-link" th:href="@{/venda/list}">Vendas</a></li>
+                    <!-- Vendas Link - Disponível para TODOS (público) -->
+                    <li class="nav-item fw-bold">
+                        <a class="nav-link" th:href="@{/venda/list}">Vendas</a>
+                    </li>
+
+                    <!-- Pessoas Físicas - ADMIN only -->
+                    <li class="nav-item fw-bold" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link" th:href="@{/pessoafisica/list}">Pessoas Físicas</a>
+                    </li>
+
+                    <!-- Pessoas Jurídicas - ADMIN only -->
+                    <li class="nav-item fw-bold" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link" th:href="@{/pessoajuridica/list}">Pessoas Jurídicas</a>
+                    </li>
                 </ul>
 
                 <ul class="navbar-nav ms-auto mb-3 mb-lg-1">
-                    <li class="nav-item">
+                    <!-- Carrinho - Disponível para CLIENTE e ADMIN autenticados -->
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
                         <a class="nav-link position-relative" th:href="@{/carrinho/carrinho}" aria-label="Carrinho">
                             <i class="bi bi-cart-fill fs-3"></i>
                             <span class="position-absolute top-2 start-80 translate-middle badge rounded-pill bg-danger"
-                                  th:text="${cartCount}">0</span>
+                                  th:text="${contadorCarrinho}">0</span>
+                        </a>
+                    </li>
+
+                    <!-- Logout - Disponível para usuários autenticados -->
+                    <li class="nav-item ms-3" sec:authorize="isAuthenticated()">
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-light">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span class="ms-2">Sair</span>
+                            </button>
+                        </form>
+                    </li>
+
+                    <!-- Login Link - Disponível para usuários não autenticados -->
+                    <li class="nav-item ms-3" sec:authorize="!isAuthenticated()">
+                        <a th:href="@{/login}" class="btn btn-sm btn-light">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            <span class="ms-2">Entrar</span>
                         </a>
                     </li>
                 </ul>

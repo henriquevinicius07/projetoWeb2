@@ -24,16 +24,34 @@ public class SecurityConfiguration {
         http.authorizeHttpRequests(
                         customizer ->
                                 customizer
-                                        .requestMatchers("/produto/form").permitAll()
+                                        // Rotas públicas (sem autenticação)
+                                        .requestMatchers("/login").permitAll()
+                                        .requestMatchers("/produto/listVenda").permitAll()
+                                        .requestMatchers(HttpMethod.POST, "/pessoafisica/salvar").hasAnyRole("ADMIN")
+                                        .requestMatchers(HttpMethod.POST, "/pessoajuridica/salvar").hasAnyRole("ADMIN")
+                                        .requestMatchers(HttpMethod.POST, "/produto/form/salvar").hasAnyRole("ADMIN")
+                                        .requestMatchers("/images/**").permitAll()
+
+                                        .requestMatchers("/venda/list").permitAll() // Venda disponível para todos
+
+                                        // Rotas para CLIENTE autenticado
+                                        .requestMatchers("/carrinho/carrinho").hasAnyRole("CLIENTE", "ADMIN")
+
+                                        // Rotas que exigem ADMIN
                                         .requestMatchers("/pessoafisica/list").hasAnyRole("ADMIN")
-                                        .requestMatchers(HttpMethod.POST,"/pessoafisica/save").permitAll()
+                                        .requestMatchers("/pessoafisica/form").hasAnyRole("ADMIN")
+                                        .requestMatchers("/pessoajuridica/list").hasAnyRole("ADMIN")
+                                        .requestMatchers("/pessoajuridica/form").hasAnyRole("ADMIN")
+                                        .requestMatchers("/produto/list").hasAnyRole("ADMIN")
+
+                                        // Qualquer outra requisição requer autenticação
                                         .anyRequest() //define que a configuração é válida para qualquer requisição.
-                                        .authenticated() //define que o usuário precisa estar autenticado.
+                                        .authenticated()//define que o usuário precisa estar autenticado.
                 )
                 .formLogin(customizer ->
                         customizer
                                 .loginPage("/login") //passamos como parâmetro a URL para acesso à página de login que criamos
-                                .defaultSuccessUrl("/pessoafisica/form", true)
+                                .defaultSuccessUrl("/produto/listVenda", true)
                                 .permitAll() //define que essa página pode ser acessada por todos, independentemente do usuário estar autenticado ou não.
                 )
                 .httpBasic(withDefaults()) //configura a autenticação básica (usuário e senha)
@@ -44,15 +62,15 @@ public class SecurityConfiguration {
 
     @Bean
     public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails user1 = User.withUsername("user")
+        UserDetails cliente1 = User.withUsername("cliente")
                 .password(passwordEncoder().encode("123"))
-                .roles("USER")
+                .roles("CLIENTE")
                 .build();
         UserDetails admin = User.withUsername("admin")
                 .password(passwordEncoder().encode("admin"))
                 .roles("ADMIN")
                 .build();
-        return new InMemoryUserDetailsManager(user1, admin);
+        return new InMemoryUserDetailsManager(cliente1, admin);
     }
 
     /**
@@ -64,5 +82,4 @@ public class SecurityConfiguration {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }
