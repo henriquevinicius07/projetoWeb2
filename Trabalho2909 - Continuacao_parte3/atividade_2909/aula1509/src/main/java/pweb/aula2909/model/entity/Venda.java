@@ -1,6 +1,7 @@
 package pweb.aula2909.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -11,10 +12,12 @@ public class Venda {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "Data é obrigatória")
     private LocalDateTime data;
 
     @ManyToOne
     @JoinColumn(name = "pessoa_id")
+    @NotNull(message = "Cliente é obrigatório")
     private Pessoa cliente;
 
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL)

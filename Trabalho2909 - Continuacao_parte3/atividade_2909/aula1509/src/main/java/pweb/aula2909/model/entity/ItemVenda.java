@@ -1,8 +1,9 @@
 package pweb.aula2909.model.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 @Entity
 public class ItemVenda {
@@ -23,8 +24,9 @@ public class ItemVenda {
 
     @Column(nullable = false)
     @NotNull(message = "Quantidade é obrigatória")
-    @DecimalMin(value = "1", message = "Quantidade deve ser maior que zero")
-    private Double quantidade;
+    @Min(value = 1, message = "Apenas números inteiros são permitidos")
+    @Positive(message = "Quantidade deve ser um número inteiro positivo")
+    private Integer quantidade;
 
     public Long getId() {
         return id;
@@ -50,11 +52,11 @@ public class ItemVenda {
         this.venda = venda;
     }
 
-    public Double getQuantidade() {
+    public Integer getQuantidade() {
         return quantidade;
     }
 
-    public void setQuantidade(Double quantidade) {
+    public void setQuantidade(Integer quantidade) {
         this.quantidade = quantidade;
     }
 
@@ -64,6 +66,6 @@ public class ItemVenda {
         if (produto == null || produto.getValor() == null || quantidade == null) {
             return 0.0;
         }
-        return produto.getValor() * quantidade;
+        return produto.getValor() * quantidade.doubleValue();
     }
 }
