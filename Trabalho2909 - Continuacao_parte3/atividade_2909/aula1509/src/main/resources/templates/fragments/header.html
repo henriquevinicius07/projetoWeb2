@@ -1,7 +1,13 @@
-<header th:fragment="header" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<header th:fragment="header"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
         <div class="container-fluid">
+
+            <!-- Loja sempre aparece -->
             <a class="navbar-brand fw-bold" th:href="@{/produto/listVenda}">Loja</a>
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarNav" aria-controls="navbarNav"
                     aria-expanded="false" aria-label="Alternar navegação">
@@ -9,22 +15,38 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
+
+                <!-- Menu esquerda -->
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
-                    <!-- Produtos Dropdown - Disponível para CLIENTE e ADMIN autenticados -->
+                    <!-- Produtos Dropdown - só aparece se estiver autenticado -->
                     <li class="nav-item dropdown fw-bold" sec:authorize="isAuthenticated()">
-                        <a class="nav-link dropdown-toggle" href="#" id="produtosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="produtosDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
                             Produtos
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="produtosDropdown">
-                            <li><a class="dropdown-item" th:href="@{/produto/listVenda}">Produtos para Venda</a></li>
-                            <li sec:authorize="hasRole('ADMIN')"><a class="dropdown-item" th:href="@{/produto/list}">Lista de Produtos Cadastrados</a></li>
-                            <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/produto/listVenda}">
+                                    Produtos para Venda
+                                </a>
+                            </li>
+
+                            <!-- Só ADMIN -->
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item" th:href="@{/produto/list}">
+                                    Lista de Produtos Cadastrados
+                                </a>
+                            </li>
+
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <hr class="dropdown-divider">
+                            </li>
                         </ul>
                     </li>
 
-                    <!-- Vendas Link - Disponível para TODOS (público) -->
-                    <li class="nav-item fw-bold">
+                    <!-- Vendas - só aparece se estiver autenticado -->
+                    <li class="nav-item fw-bold" sec:authorize="isAuthenticated()">
                         <a class="nav-link" th:href="@{/venda/list}">Vendas</a>
                     </li>
 
@@ -39,34 +61,43 @@
                     </li>
                 </ul>
 
-                <ul class="navbar-nav ms-auto mb-3 mb-lg-1">
-                    <!-- Carrinho - Disponível para CLIENTE e ADMIN autenticados -->
+                <!-- Menu direita: alinhado e padronizado -->
+                <ul class="navbar-nav ms-auto flex-row align-items-center gap-2">
+
+                    <!-- Carrinho - só aparece se estiver autenticado -->
                     <li class="nav-item" sec:authorize="isAuthenticated()">
-                        <a class="nav-link position-relative" th:href="@{/carrinho/carrinho}" aria-label="Carrinho">
-                            <i class="bi bi-cart-fill fs-3"></i>
-                            <span class="position-absolute top-2 start-80 translate-middle badge rounded-pill bg-danger"
+                        <a class="btn btn-sm btn-light position-relative d-inline-flex align-items-center justify-content-center"
+                           th:href="@{/carrinho/carrinho}" aria-label="Carrinho"
+                           style="width: 42px; height: 32px; padding: 0;">
+                            <i class="bi bi-cart-fill" style="font-size: 1.2rem; line-height: 1;"></i>
+
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                                   th:text="${contadorCarrinho}">0</span>
                         </a>
                     </li>
 
-                    <!-- Logout - Disponível para usuários autenticados -->
-                    <li class="nav-item ms-3" sec:authorize="isAuthenticated()">
-                        <form th:action="@{/logout}" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-light">
-                                <i class="bi bi-box-arrow-right"></i>
+                    <!-- Logout - só aparece se estiver autenticado -->
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <form th:action="@{/logout}" method="post" class="d-inline m-0">
+                            <button type="submit" class="btn btn-sm btn-light d-inline-flex align-items-center"
+                                    style="height: 32px;">
+                                <i class="bi bi-box-arrow-right" style="line-height: 1;"></i>
                                 <span class="ms-2">Sair</span>
                             </button>
                         </form>
                     </li>
 
-                    <!-- Login Link - Disponível para usuários não autenticados -->
-                    <li class="nav-item ms-3" sec:authorize="!isAuthenticated()">
-                        <a th:href="@{/login}" class="btn btn-sm btn-light">
-                            <i class="bi bi-box-arrow-in-right"></i>
+                    <!-- Login - só aparece se NÃO estiver autenticado -->
+                    <li class="nav-item" sec:authorize="!isAuthenticated()">
+                        <a th:href="@{/login}" class="btn btn-sm btn-light d-inline-flex align-items-center"
+                           style="height: 32px;">
+                            <i class="bi bi-box-arrow-in-right" style="line-height: 1;"></i>
                             <span class="ms-2">Entrar</span>
                         </a>
                     </li>
+
                 </ul>
+
             </div>
         </div>
     </nav>
