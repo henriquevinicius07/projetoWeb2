@@ -41,25 +41,26 @@
 
                             <td>
                                 R$
-                                <span th:text="${#numbers.formatDecimal(item.produto.valor, 2, 'POINT', 2, 'COMMA')}">
-                                    0,00
-                                </span>
+                                <span th:text="${#numbers.formatDecimal(item.produto.valor, 2, 'POINT', 2, 'COMMA')}">0,00</span>
                             </td>
 
                             <td>
-                                <input type="number"
-                                       min="1"
-                                       step="1"
-                                       class="form-control text-center qtd-input"
-                                       th:value="${item.quantidade}"
-                                       th:data-id="${item.produto.id}"
-                                       style="width: 80px;">
+                                <div class="d-flex justify-content-center">
+                                    <input type="number"
+                                           min="1"
+                                           step="1"
+                                           class="form-control qtd-input"
+                                           th:value="${item.quantidade}"
+                                           th:data-id="${item.produto.id}">
+                                </div>
                             </td>
+
 
                             <td>
                                 R$
+                                <!-- ✅ corrigido: calcula direto aqui -->
                                 <span th:id="'total-' + ${item.produto.id}"
-                                      th:text="${#numbers.formatDecimal(item.total, 2, 'POINT', 2, 'COMMA')}">
+                                      th:text="${#numbers.formatDecimal(item.produto.valor * item.quantidade, 2, 'POINT', 2, 'COMMA')}">
                                     0,00
                                 </span>
                             </td>
@@ -68,7 +69,7 @@
                                 <form th:action="@{/carrinho/remove/{id}(id=${item.produto.id})}" method="post">
                                     <input type="hidden" th:if="${_csrf != null}"
                                            th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                    <button class="btn btn-danger btn-sm">
+                                    <button class="btn btn-danger btn-sm" type="submit">
                                         <i class="bi bi-trash3-fill"></i>
                                     </button>
                                 </form>
@@ -136,7 +137,6 @@
                                            th:value="${clienteLogado != null ? clienteLogado.nomeExibicao : 'Cliente não vinculado ao usuário'}"
                                            readonly>
 
-                                    <!-- envia o id (opcional) - o controller do CLIENTE usa o usuario logado -->
                                     <input type="hidden" name="clienteId"
                                            th:if="${clienteLogado != null}"
                                            th:value="${clienteLogado.id}"/>
@@ -175,7 +175,6 @@
     </div>
 
     <script>
-        // Lê o token CSRF do <head> (adicionado no fragment head.html)
         function getCsrf() {
             const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
             const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
@@ -188,96 +187,118 @@
             return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
+        function showError(productId, msg) {
+            const globalContainer = document.getElementById('global-error-container');
+            let existingAlert = document.getElementById('error-alert-' + productId);
+
+            if (!existingAlert) {
+                const alertDiv = document.createElement('div');
+                alertDiv.id = 'error-alert-' + productId;
+                alertDiv.className = 'alert alert-danger d-flex justify-content-between align-items-center mb-2 alert-dismissible fade show';
+                alertDiv.setAttribute('role', 'alert');
+                alertDiv.innerHTML = `
+                    <span>
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span>${msg}</span>
+                    </span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                globalContainer.appendChild(alertDiv);
+            } else {
+                existingAlert.querySelector('span span').textContent = msg;
+            }
+        }
+
+        function clearError(productId) {
+            const existingAlert = document.getElementById('error-alert-' + productId);
+            if (existingAlert) existingAlert.remove();
+        }
+
         document.querySelectorAll('.qtd-input').forEach(input => {
             let timeout = null;
 
-            input.addEventListener('input', function () {
+            const enviarUpdate = async (productId, qtdInt) => {
+                const { token, header } = getCsrf();
+                const headers = { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' };
+                if (token && header) headers[header] = token;
+
+                const resp = await fetch('/carrinho/update/' + productId, {
+                    method: 'POST',
+                    headers,
+                    body: new URLSearchParams({ quantidade: String(qtdInt) }),
+                    credentials: 'same-origin'
+                });
+
+                if (!resp.ok) {
+                    console.error('Falha ao atualizar quantidade:', resp.status);
+                    return null;
+                }
+
+                return await resp.json();
+            };
+
+            const handle = function () {
                 clearTimeout(timeout);
 
-                let valor = this.value.trim();
                 const productId = this.dataset.id;
-                const globalContainer = document.getElementById('global-error-container');
-                let hasError = false;
-                let errorMessage = '';
+                const valor = this.value.trim();
 
-                // Validação: Quantidade é obrigatória
                 if (!valor) {
-                    hasError = true;
-                    errorMessage = 'Quantidade é obrigatória';
                     this.classList.add('is-invalid');
-                }
-                // Validação: Apenas números inteiros (sem decimais)
-                else if (valor.includes('.') || valor.includes(',')) {
-                    hasError = true;
-                    errorMessage = 'Apenas números inteiros são permitidos';
-                    this.value = '';
-                    this.classList.add('is-invalid');
-                }
-                // Validação: Quantidade deve ser positiva
-                else {
-                    let qtdInt = Number.parseInt(valor, 10);
-                    if (!Number.isFinite(qtdInt) || qtdInt < 1) {
-                        hasError = true;
-                        errorMessage = 'Quantidade deve ser um número inteiro positivo';
-                        this.value = '';
-                        this.classList.add('is-invalid');
-                    } else {
-                        this.classList.remove('is-invalid');
-                    }
-                }
-
-                // Exibir ou ocultar mensagem de erro no container global
-                if (hasError) {
-                    this.classList.add('is-invalid');
-
-                    let existingAlert = document.getElementById('error-alert-' + productId);
-                    if (!existingAlert) {
-                        const alertDiv = document.createElement('div');
-                        alertDiv.id = 'error-alert-' + productId;
-                        alertDiv.className = 'alert alert-danger d-flex justify-content-between align-items-center mb-2 alert-dismissible fade show';
-                        alertDiv.setAttribute('role', 'alert');
-                        alertDiv.innerHTML = `
-                            <span>
-                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                <span>${errorMessage}</span>
-                            </span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        `;
-                        globalContainer.appendChild(alertDiv);
-                    } else {
-                        existingAlert.innerHTML = `
-                            <span>
-                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                <span>${errorMessage}</span>
-                            </span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        `;
-                    }
+                    showError(productId, 'Quantidade é obrigatória');
                     return;
-                } else {
-                    this.classList.remove('is-invalid');
-                    const existingAlert = document.getElementById('error-alert-' + productId);
-                    if (existingAlert) existingAlert.remove();
                 }
+
+                if (valor.includes('.') || valor.includes(',')) {
+                    this.classList.add('is-invalid');
+                    this.value = '';
+                    showError(productId, 'Apenas números inteiros são permitidos');
+                    return;
+                }
+
+                const qtdInt = Number.parseInt(valor, 10);
+                if (!Number.isFinite(qtdInt) || qtdInt < 1) {
+                    this.classList.add('is-invalid');
+                    this.value = '';
+                    showError(productId, 'Quantidade deve ser um número inteiro positivo');
+                    return;
+                }
+
+                this.classList.remove('is-invalid');
+                clearError(productId);
 
                 timeout = setTimeout(async () => {
-                    let qtdInt = Number.parseInt(valor, 10);
-
-                    const { token, header } = getCsrf();
-                    const headers = {
-                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-                    };
-                    if (token && header) {
-                        headers[header] = token;
-                    }
-
                     try {
-                        const resp = await fetch('/carrinho/update/' + productId, {
-                            method: 'POST',
-                            headers,
-                            body: new URLSearchParams({ quantidade: String(qtdInt) }),
-                            credentials: 'same-origin'
-                        });
+                        const data = await enviarUpdate(productId, qtdInt);
+                        if (!data || !data.sucesso) return;
 
-                        if (!resp.ok) {
-                            console.error('Fal
+                        const totalItemEl = document.getElementById('total-' + productId);
+                        if (totalItemEl && typeof data.totalItem !== 'undefined') {
+                            totalItemEl.textContent = formatarNumeroBR(data.totalItem);
+                        }
+
+                        const totalCarrinhoEl = document.getElementById('total-carrinho');
+                        if (totalCarrinhoEl && typeof data.totalCarrinho !== 'undefined') {
+                            totalCarrinhoEl.textContent = formatarNumeroBR(data.totalCarrinho);
+                        }
+                    } catch (e) {
+                        console.error('Erro de rede ao atualizar quantidade:', e);
+                    }
+                }, 350);
+            };
+
+            input.addEventListener('input', handle);
+            input.addEventListener('change', handle);
+
+            input.addEventListener('blur', function () {
+                if (!this.value.trim()) {
+                    this.value = '1';
+                    handle.call(this);
+                }
+            });
+        });
+    </script>
+
+</main>
+
+</html>

@@ -21,10 +21,7 @@ import pweb.aula2909.model.repository.ProdutoRepository;
 import pweb.aula2909.model.repository.VendaRepository;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequestMapping("/carrinho")
@@ -57,9 +54,7 @@ public class CarrinhoController {
 
     private void adicionarAoCarrinhoInterno(Long id, Integer quantidade, HttpSession session) {
 
-        if (quantidade == null || quantidade < 1) {
-            quantidade = 1;
-        }
+        if (quantidade == null || quantidade < 1) quantidade = 1;
 
         Produto produto = produtoRepository.buscarPorId(id);
         if (produto == null) return;
@@ -67,8 +62,10 @@ public class CarrinhoController {
         List<ItemVenda> carrinho = getCarrinhoFromSession(session);
 
         for (ItemVenda item : carrinho) {
-            if (item.getProduto().getId().equals(produto.getId())) {
-                item.setQuantidade(item.getQuantidade() + quantidade);
+            if (item.getProduto() != null && item.getProduto().getId().equals(produto.getId())) {
+                Integer qtdAtual = item.getQuantidade();
+                if (qtdAtual == null || qtdAtual < 1) qtdAtual = 1;
+                item.setQuantidade(qtdAtual + quantidade);
                 session.setAttribute(SESSAO_CARRINHO, carrinho);
                 return;
             }
@@ -89,10 +86,7 @@ public class CarrinhoController {
 
         List<ItemVenda> carrinho = getCarrinhoFromSession(session);
 
-        double total = 0.0;
-        for (ItemVenda item : carrinho) {
-            total += item.getTotal();
-        }
+        double total = calcularTotalCarrinho(carrinho);
 
         model.addAttribute("itens", carrinho);
         model.addAttribute("total", total);
@@ -101,13 +95,11 @@ public class CarrinhoController {
         model.addAttribute("isAdmin", isAdmin);
 
         if (isAdmin) {
-            // ADMIN: pode escolher qualquer cliente
             List<Object> clientes = new ArrayList<>();
             clientes.addAll(pessoaFisicaRepo.pessoasFisicas());
             clientes.addAll(pessoaJuridicaRepo.pessoasJuridicas());
             model.addAttribute("clientes", clientes);
         } else {
-            // CLIENTE: usa o cliente vinculado ao usuário logado
             Pessoa clienteLogado = (usuarioLogado != null) ? usuarioLogado.getPessoa() : null;
             model.addAttribute("clienteLogado", clienteLogado);
         }
@@ -121,35 +113,29 @@ public class CarrinhoController {
                                                                    @RequestParam(required = false) Integer quantidade,
                                                                    HttpSession session) {
 
-        if (quantidade == null || quantidade < 1) {
-            quantidade = 1;
-        }
+        if (quantidade == null || quantidade < 1) quantidade = 1;
 
         List<ItemVenda> carrinho = getCarrinhoFromSession(session);
 
-        Double totalItem = null;
         boolean encontrou = false;
+        Double totalItem = null;
 
-        List<ItemVenda> carrinhoAtualizado = new ArrayList<>();
         for (ItemVenda item : carrinho) {
             if (item.getProduto() != null && item.getProduto().getId().equals(id)) {
                 item.setQuantidade(quantidade);
-                totalItem = item.getTotal();
+                totalItem = calcularTotalItem(item);
                 encontrou = true;
+                break;
             }
-            carrinhoAtualizado.add(item);
         }
 
         if (!encontrou) {
             return ResponseEntity.notFound().build();
         }
 
-        session.setAttribute(SESSAO_CARRINHO, carrinhoAtualizado);
+        session.setAttribute(SESSAO_CARRINHO, carrinho);
 
-        double totalCarrinho = 0.0;
-        for (ItemVenda item : carrinhoAtualizado) {
-            totalCarrinho += item.getTotal();
-        }
+        double totalCarrinho = calcularTotalCarrinho(carrinho);
 
         Map<String, Object> resp = new HashMap<>();
         resp.put("sucesso", true);
@@ -186,23 +172,15 @@ public class CarrinhoController {
         Pessoa cliente = null;
 
         if (isAdmin) {
-            // ADMIN: precisa escolher um cliente
-            if (clienteId == null) {
-                return new ModelAndView("redirect:/carrinho/carrinho");
-            }
+            if (clienteId == null) return new ModelAndView("redirect:/carrinho/carrinho");
 
             cliente = pessoaFisicaRepo.buscarPorId(clienteId);
-            if (cliente == null) {
-                cliente = pessoaJuridicaRepo.buscarPorId(clienteId);
-            }
+            if (cliente == null) cliente = pessoaJuridicaRepo.buscarPorId(clienteId);
         } else {
-            // CLIENTE: cliente é sempre o vinculado ao usuário logado
             cliente = (usuarioLogado != null) ? usuarioLogado.getPessoa() : null;
         }
 
-        if (cliente == null) {
-            return new ModelAndView("redirect:/carrinho/carrinho");
-        }
+        if (cliente == null) return new ModelAndView("redirect:/carrinho/carrinho");
 
         Venda venda = new Venda();
         venda.setData(LocalDateTime.now());
@@ -238,23 +216,36 @@ public class CarrinhoController {
         if (usuarioLogado == null || usuarioLogado.getAuthorities() == null) return false;
 
         for (GrantedAuthority a : usuarioLogado.getAuthorities()) {
-            if (a != null && "ROLE_ADMIN".equals(a.getAuthority())) {
-                return true;
-            }
+            if (a != null && "ROLE_ADMIN".equals(a.getAuthority())) return true;
         }
         return false;
     }
 
-    private List<ItemVenda> getCarrinhoFromSession(HttpSession session) {
+    private double calcularTotalItem(ItemVenda item) {
+        if (item == null || item.getProduto() == null || item.getProduto().getValor() == null) return 0.0;
 
+        Integer qtd = item.getQuantidade();
+        if (qtd == null || qtd < 1) qtd = 1;
+
+        // assumindo valor como Double (igual seu template usa)
+        return item.getProduto().getValor() * (double) qtd;
+    }
+
+    private double calcularTotalCarrinho(List<ItemVenda> carrinho) {
+        if (carrinho == null) return 0.0;
+        double total = 0.0;
+        for (ItemVenda item : carrinho) total += calcularTotalItem(item);
+        return total;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<ItemVenda> getCarrinhoFromSession(HttpSession session) {
         Object o = session.getAttribute(SESSAO_CARRINHO);
 
         if (o instanceof List<?>) {
             try {
                 return (List<ItemVenda>) o;
-            } catch (ClassCastException e) {
-                // ignora e recria
-            }
+            } catch (ClassCastException ignored) { }
         }
 
         List<ItemVenda> carrinho = new ArrayList<>();
