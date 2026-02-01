@@ -1,17 +1,18 @@
 package pweb.aula2909.model.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import pweb.aula2909.model.service.UsuarioService;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -19,16 +20,25 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity //indica ao Spring que serão definidas configurações personalizadas de segurança
 public class SecurityConfiguration {
 
+    @Autowired
+    private UsuarioService usuarioService;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(
                         customizer ->
                                 customizer
+                                        // H2 Console - Acesso público
+                                        .requestMatchers("/h2-console/**").permitAll()
+
                                         // Rotas públicas (sem autenticação)
                                         .requestMatchers("/login").permitAll()
+                                        .requestMatchers("/escolher-tipo-cadastro").permitAll()
                                         .requestMatchers("/produto/listVenda").permitAll()
-                                        .requestMatchers(HttpMethod.POST, "/pessoafisica/salvar").hasAnyRole("ADMIN")
-                                        .requestMatchers(HttpMethod.POST, "/pessoajuridica/salvar").hasAnyRole("ADMIN")
+                                        .requestMatchers("/pessoafisica/form").permitAll()
+                                        .requestMatchers("/pessoajuridica/form").permitAll()
+                                        .requestMatchers(HttpMethod.POST, "/pessoafisica/salvar").permitAll()
+                                        .requestMatchers(HttpMethod.POST, "/pessoajuridica/salvar").permitAll()
                                         .requestMatchers(HttpMethod.POST, "/produto/form/salvar").hasAnyRole("ADMIN")
                                         .requestMatchers("/images/**").permitAll()
 
@@ -39,9 +49,9 @@ public class SecurityConfiguration {
 
                                         // Rotas que exigem ADMIN
                                         .requestMatchers("/pessoafisica/list").hasAnyRole("ADMIN")
-                                        .requestMatchers("/pessoafisica/form").hasAnyRole("ADMIN")
+                                        .requestMatchers("/pessoafisica/editar/**").hasAnyRole("ADMIN")
                                         .requestMatchers("/pessoajuridica/list").hasAnyRole("ADMIN")
-                                        .requestMatchers("/pessoajuridica/form").hasAnyRole("ADMIN")
+                                        .requestMatchers("/pessoajuridica/editar/**").hasAnyRole("ADMIN")
                                         .requestMatchers("/produto/list").hasAnyRole("ADMIN")
 
                                         // Qualquer outra requisição requer autenticação
@@ -56,28 +66,23 @@ public class SecurityConfiguration {
                 )
                 .httpBasic(withDefaults()) //configura a autenticação básica (usuário e senha)
                 .logout(LogoutConfigurer::permitAll) //configura a funcionalidade de logout no Spring Security.
-                .rememberMe(withDefaults()); //permite que os usuários permaneçam autenticados mesmo após o fechamento do navegador
+                .rememberMe(customizer -> customizer.userDetailsService(usuarioService)) //permite que os usuários permaneçam autenticados mesmo após o fechamento do navegador
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**")) // Desabilitar CSRF para H2 console
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())); // Permitir frames para H2
+                 http.authenticationProvider(authenticationProvider());
+
         return http.build();
     }
 
     @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails cliente1 = User.withUsername("cliente")
-                .password(passwordEncoder().encode("123"))
-                .roles("CLIENTE")
-                .build();
-        UserDetails admin = User.withUsername("admin")
-                .password(passwordEncoder().encode("admin"))
-                .roles("ADMIN")
-                .build();
-        return new InMemoryUserDetailsManager(cliente1, admin);
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(usuarioService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 
-    /**
-     * Com o método, instanciamos uma instância do encoder BCrypt e deixando o controle dessa instância como responsabilidade do Spring.
-     * Agora, sempre que o Spring Security necessitar condificar um senha, ele já terá o que precisa configurado.
-     * @return
-     */
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

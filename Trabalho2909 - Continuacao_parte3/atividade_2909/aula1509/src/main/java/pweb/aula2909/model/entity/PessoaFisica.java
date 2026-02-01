@@ -17,6 +17,9 @@ public class PessoaFisica extends Pessoa implements Serializable {
     @NotBlank(message = "CPF é obrigatório")
     @Pattern(regexp = "\\d{11}", message = "CPF deve conter 11 dígitos")
     private String cpf;
+    @NotBlank(message = "Senha é obrigatória")
+    @Size(min = 3, message = "Senha deve ter no mínimo 3 caracteres")
+    private String senha;
 
     public String getNomeExibicao() {
         return nome;
@@ -37,5 +40,13 @@ public class PessoaFisica extends Pessoa implements Serializable {
 
     public void setCpf(String cpf) {
         this.cpf = cpf;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 }

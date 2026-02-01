@@ -318,6 +318,10 @@
             <div class="login-body">
                 <form th:action="@{/login}" method="post" id="loginForm">
 
+                    <input type="hidden" th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}" />
+
                     <!-- Campo Usuário -->
                     <div class="form-group">
                         <label for="username" class="form-label">
@@ -374,6 +378,13 @@
                     </button>
 
                 </form>
+
+                <!-- Link para Cadastro -->
+                <div class="login-footer">
+                    <p class="mb-0 text-secondary">
+                        Não tem conta? <a href="/escolher-tipo-cadastro" class="text-primary fw-bold">Registre-se aqui</a>
+                    </p>
+                </div>
 
                 <!-- Footer -->
                 <div class="login-footer">

@@ -14,6 +14,13 @@
             <hr class="w-25 mx-auto">
         </div>
 
+        <!-- Mensagem de Erro -->
+        <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show mx-auto" style="max-width: 500px;" role="alert">
+            <i class="bi bi-exclamation-circle-fill me-2"></i>
+            <strong>Erro!</strong> <span th:text="${erro}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
         <div class="text-center mb-4">
             <a th:href="@{/pessoafisica/list}" class="btn btn-secondary px-4">
                 <i class="bi bi-arrow-left-circle me-2"></i>Voltar à Lista
@@ -27,7 +34,7 @@
                         <input type="hidden" th:field="*{id}">
 
                         <div class="mb-3">
-                            <label for="nome" class="form-label"><i class="bi bi-person me-2"></i>Nome</label>
+                            <label for="nome" class="form-label"><i class="bi bi-person me-2"></i>Nome/Login</label>
                             <input id="nome" type="text" th:field="*{nome}" class="form-control" placeholder="Nome completo"
                                    th:classappend="${#fields.hasErrors('nome')} ? ' is-invalid'">
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
@@ -52,6 +59,14 @@
                             <input id="telefone" type="text" th:field="*{telefone}" class="form-control" placeholder="Telefone"
                                    th:classappend="${#fields.hasErrors('telefone')} ? ' is-invalid'">
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('telefone')}" th:errors="*{telefone}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="senha" class="form-label"><i class="bi bi-lock me-2"></i>Senha</label>
+                            <small class="d-block text-muted mb-2">Você usará essa senha para fazer login</small>
+                            <input id="senha" type="password" th:field="*{senha}" class="form-control" placeholder="Digite uma senha segura"
+                                   th:classappend="${#fields.hasErrors('senha')} ? ' is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}"></div>
                         </div>
 
                         <div class="text-center mt-4">

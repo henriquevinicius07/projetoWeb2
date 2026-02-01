@@ -16,6 +16,9 @@ public class PessoaJuridica extends Pessoa implements Serializable {
     @NotBlank(message = "CNPJ é obrigatório")
     @Pattern(regexp = "\\d{14}", message = "CNPJ deve conter 14 dígitos")
     private String cnpj;
+    @NotBlank(message = "Senha é obrigatória")
+    @Size(min = 3, message = "Senha deve ter no mínimo 3 caracteres")
+    private String senha;
 
     public String getNomeExibicao() {
         return razaoSocial;
@@ -35,5 +38,13 @@ public class PessoaJuridica extends Pessoa implements Serializable {
 
     public void setCnpj(String cnpj) {
         this.cnpj = cnpj;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 }
