@@ -1,71 +1,73 @@
+-- ======================================================================
+-- import.sql (H2)
+-- ======================================================================
+-- Este arquivo popula o banco H2 em memória com dados iniciais.
+-- IMPORTANTE: no seu modelo, Pessoa é a tabela “base” e PessoaFisica/PessoaJuridica
+-- referenciam Pessoa (FK). Então sempre inserimos primeiro em `pessoa`,
+-- depois em `pessoa_fisica` / `pessoa_juridica`.
 
-
--- Roles (com IDs sequenciais)
+-- Roles
 insert into role (id, nome) values (1, 'ROLE_ADMIN');
 insert into role (id, nome) values (2, 'ROLE_CLIENTE');
 
--- Produtos (com IDs sequenciais)
-insert into produto (id, descricao, valor) values (1, 'Fone de Ouvido', 150);
-insert into produto (id, descricao, valor) values (2, 'Suporte de Celular', 20);
-insert into produto (id, descricao, valor) values (3, 'Monitor', 720);
-insert into produto (id, descricao, valor) values (4, 'Mouse Pad', 12.00);
-insert into produto (id, descricao, valor) values (5, 'Mouse', 150);
-insert into produto (id, descricao, valor) values (6, 'Suporte para Notebook', 35);
-insert into produto (id, descricao, valor) values (7, 'Teclado', 90);
-insert into produto (id, descricao, valor) values (8, 'Nobreak', 450);
+-- Pessoas (tabela base)
+insert into pessoa (id, email, telefone) values
+                                             (1, 'admin@teste.com', '(63)99999-0000'),
+                                             (2, 'cliente@teste.com', '(63)99999-1111');
 
--- Pessoas Físicas (com IDs sequenciais)
-insert into pessoa (id, email, telefone) values (1, 'admin@email.com', '63988888888');
-insert into pessoa_fisica (id, cpf, nome, senha) values (1, '98765432100', 'admin', 'admin');
+-- Pessoas físicas (detalhes)
+insert into pessoa_fisica (id, nome, cpf, senha) values
+                                                     (1, 'Administrador', '00000000000', 'admin'),
+                                                     (2, 'Cliente',       '11111111111', '123');
 
-insert into pessoa (id, email, telefone) values (2, 'cliente@email.com', '63999999999');
-insert into pessoa_fisica (id, cpf, nome, senha) values (2, '12345678901', 'cliente', '123');
-
--- Pessoas para Vendas
-insert into pessoa (id, email, telefone) values (3, 'henriquefontes@gmail.com', '63984526378');
-insert into pessoa_fisica (id, cpf, nome, senha) values (3, '06767965485', 'Henrique Fontes', '123');
-
-insert into pessoa (id, email, telefone) values (4, 'maria.silva@gmail.com', '63999998888');
-insert into pessoa_fisica (id, cpf, nome, senha) values (4, '10123456789', 'Maria Silva', '123');
-
-insert into pessoa (id, email, telefone) values (5, 'htech@gmail.com', '32127123');
-insert into pessoa_juridica (id, cnpj, razao_social, senha) values (5, '12852269000199', 'HTech', 'htech123');
-
-insert into pessoa (id, email, telefone) values (6, 'mercadocentral@gmail.com', '6332124455');
-insert into pessoa_juridica (id, cnpj, razao_social, senha) values (6, '11222333000155', 'Mercado Central', 'mercado123');
+-- Produtos
+insert into produto (id, descricao, valor, imagem) values
+                                                       (1, 'Notebook Dell', 3500.00, 'notebook.jpg'),
+                                                       (2, 'Mouse Logitech', 150.00, 'mouse.jpg'),
+                                                       (3, 'Teclado Mecânico', 300.00, 'teclado.jpg'),
+                                                       (4, 'Monitor LG 24"', 900.00, 'monitor.jpg'),
+                                                       (5, 'Impressora HP', 650.00, 'impressora.jpg'),
+                                                       (6, 'Fone Bluetooth', 200.00, 'fone.jpg'),
+                                                       (7, 'Cadeira Gamer', 1200.00, 'cadeira.jpg'),
+                                                       (8, 'Smartphone Samsung', 2500.00, 'smartphone.jpg');
 
 -- Usuários com senhas BCrypt corretas
--- Senha 'admin' com BCrypt cost 10: $2a$10$slYQmyNdGzin7olVN3p5/.8aR7CPfBfALvD.eZXBXkDDaLUzTUQae
--- Senha '123' com BCrypt cost 10: $2a$10$QgSvqqUysrtfDZ18d7Lvu.lJ.8gYZx8KD5P9E2Bg7sUJVQknQzw/C
-insert into usuario (login, password, pessoa_id)
-values ('admin', '$2a$10$CzTx7V5x6mEPRbHJSp0uTeS6rZOa/kc5tS.mbaPlA1MGa9UCfGBqe', 1);
+-- Senha padrão (admin e cliente): 123
+insert into usuario (id, login, password, pessoa_id) values
+    (1, 'admin',   '$2a$10$Vo7WqfiLN16dgWRrgEiq8uBoQ4FRam3.oNAdJ9T5VBH7iNq2XZxPG', 1);
 
-insert into usuario (login, password, pessoa_id)
-values ('cliente', '$2a$10$Vo7WqfiLN16dgWRrgEiq8uBoQ4FRam3.oNAdJ9T5VBH7iNq2XZxPG', 2);
+insert into usuario (id, login, password, pessoa_id) values
+    (2, 'cliente', '$2a$10$Vo7WqfiLN16dgWRrgEiq8uBoQ4FRam3.oNAdJ9T5VBH7iNq2XZxPG', 2);
 
+-- Relação usuário-role (nomes corretos conforme @JoinTable do Usuario)
+insert into usuario_roles (usuarios_id, roles_id) values (1, 1);
+insert into usuario_roles (usuarios_id, roles_id) values (2, 2);
 
--- Obter IDs dos usuários para associar roles (usando subquery)
-insert into usuario_roles (usuarios_id, roles_id) select u.id, 1 from usuario u where u.login = 'admin';
-insert into usuario_roles (usuarios_id, roles_id) select u.id, 2 from usuario u where u.login = 'cliente';
+-- Vendas (exemplo)
+insert into venda (id, pessoa_id, data) values
+                                            (1, 2, '2025-10-12 10:00:00'),
+                                            (2, 2, '2025-10-13 12:00:00'),
+                                            (3, 2, '2025-10-14 14:30:00'),
+                                            (4, 2, '2025-10-15 16:45:00');
 
--- Vendas (com IDs sequenciais)
-insert into venda (id, data, pessoa_id) values (1, '2025-10-10 10:00:00', 3);
-insert into venda (id, data, pessoa_id) values (2, '2025-10-13 12:00:00', 5);
-insert into venda (id, data, pessoa_id) values (3, '2025-10-25 09:00:00', 4);
-insert into venda (id, data, pessoa_id) values (4, '2025-11-14 11:30:00', 6);
+-- Itens das vendas
+-- (ItemVenda não tem valor_unitario no seu modelo)
+insert into item_venda (id, venda_id, produto_id, quantidade) values
+                                                                  (1, 1, 1, 1),
+                                                                  (2, 1, 2, 2),
+                                                                  (3, 2, 3, 1),
+                                                                  (4, 2, 4, 1),
+                                                                  (5, 3, 5, 1),
+                                                                  (6, 3, 6, 2),
+                                                                  (7, 4, 7, 1),
+                                                                  (8, 4, 8, 1);
 
--- Itens da venda 1
-insert into item_venda (id, quantidade, produto_id, venda_id) values (1, 2, 1, 1);
-insert into item_venda (id, quantidade, produto_id, venda_id) values (2, 1, 2, 1);
-
--- Itens da venda 2
-insert into item_venda (id, quantidade, produto_id, venda_id) values (3, 3, 3, 2);
-insert into item_venda (id, quantidade, produto_id, venda_id) values (4, 1, 4, 2);
-
--- Itens da venda 3
-insert into item_venda (id, quantidade, produto_id, venda_id) values (5, 2, 5, 3);
-insert into item_venda (id, quantidade, produto_id, venda_id) values (6, 1, 2, 3);
-
--- Itens da venda 4
-insert into item_venda (id, quantidade, produto_id, venda_id) values (7, 4, 1, 4);
-insert into item_venda (id, quantidade, produto_id, venda_id) values (8, 1, 3, 4);
+-- ======================================================================
+-- IMPORTANTE (H2): Ajusta os IDs auto-gerados para não colidir com os IDs
+-- inseridos manualmente acima (corrige o erro 23505 / PK)
+-- ======================================================================
+alter table role      alter column id restart with 3;
+alter table produto   alter column id restart with 9;
+alter table usuario   alter column id restart with 3;
+alter table venda     alter column id restart with 5;
+alter table item_venda alter column id restart with 9;

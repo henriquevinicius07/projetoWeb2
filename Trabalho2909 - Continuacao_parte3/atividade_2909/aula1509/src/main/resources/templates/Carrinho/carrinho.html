@@ -7,8 +7,8 @@
 <main>
     <div class="container my-4">
 
-
-        <div id="global-error-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1050; margin-top: 80px; max-width: 400px;">
+        <div id="global-error-container" class="position-fixed top-0 end-0 p-3"
+             style="z-index: 1050; margin-top: 80px; max-width: 400px;">
         </div>
 
         <div class="card shadow-lg border-0">
@@ -66,7 +66,8 @@
 
                             <td>
                                 <form th:action="@{/carrinho/remove/{id}(id=${item.produto.id})}" method="post">
-                                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <input type="hidden" th:if="${_csrf != null}"
+                                           th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                     <button class="btn btn-danger btn-sm">
                                         <i class="bi bi-trash3-fill"></i>
                                     </button>
@@ -103,11 +104,14 @@
                         <div class="col-md-6">
                             <h5>Finalizar Compra</h5>
 
-                            <form th:action="@{/carrinho/finalizar}" method="post" class="row g-2" id="formFinalizarCompra">
+                            <form th:action="@{/carrinho/finalizar}" method="post"
+                                  class="row g-2" id="formFinalizarCompra">
 
-                                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <input type="hidden" th:if="${_csrf != null}"
+                                       th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
-                                <div class="col-12">
+                                <!-- ADMIN: escolhe o cliente -->
+                                <div class="col-12" th:if="${isAdmin}">
                                     <label for="clienteId" class="form-label">
                                         <i class="bi bi-person-badge-fill me-1"></i> Cliente
                                     </label>
@@ -121,11 +125,35 @@
                                     </select>
                                 </div>
 
+                                <!-- CLIENTE: mostra apenas o cliente logado -->
+                                <div class="col-12" th:unless="${isAdmin}">
+                                    <label class="form-label">
+                                        <i class="bi bi-person-badge-fill me-1"></i> Cliente
+                                    </label>
+
+                                    <input type="text"
+                                           class="form-control"
+                                           th:value="${clienteLogado != null ? clienteLogado.nomeExibicao : 'Cliente não vinculado ao usuário'}"
+                                           readonly>
+
+                                    <!-- envia o id (opcional) - o controller do CLIENTE usa o usuario logado -->
+                                    <input type="hidden" name="clienteId"
+                                           th:if="${clienteLogado != null}"
+                                           th:value="${clienteLogado.id}"/>
+                                </div>
+
                                 <div class="col-12 text-end">
-                                    <button type="submit" class="btn btn-success px-4">
+                                    <button type="submit" class="btn btn-success px-4"
+                                            th:disabled="${!isAdmin and clienteLogado == null}">
                                         <i class="bi bi-check2-circle me-2"></i>
                                         Finalizar Compra
                                     </button>
+                                </div>
+
+                                <div class="col-12" th:if="${!isAdmin and clienteLogado == null}">
+                                    <div class="alert alert-warning mb-0">
+                                        Este usuário não está vinculado a um cliente, então não é possível finalizar a compra.
+                                    </div>
                                 </div>
 
                             </form>
@@ -202,7 +230,6 @@
                 if (hasError) {
                     this.classList.add('is-invalid');
 
-                    // Verificar se já existe alerta para este produto
                     let existingAlert = document.getElementById('error-alert-' + productId);
                     if (!existingAlert) {
                         const alertDiv = document.createElement('div');
@@ -229,14 +256,10 @@
                     return;
                 } else {
                     this.classList.remove('is-invalid');
-                    // Remover alerta do container global
                     const existingAlert = document.getElementById('error-alert-' + productId);
-                    if (existingAlert) {
-                        existingAlert.remove();
-                    }
+                    if (existingAlert) existingAlert.remove();
                 }
 
-                // Se não há erro, atualizar quantidade no servidor
                 timeout = setTimeout(async () => {
                     let qtdInt = Number.parseInt(valor, 10);
 
@@ -257,42 +280,4 @@
                         });
 
                         if (!resp.ok) {
-                            console.error('Falha ao atualizar quantidade:', resp.status);
-                            return;
-                        }
-
-                        const data = await resp.json();
-
-                        // Atualiza total do item
-                        const totalItemEl = document.getElementById('total-' + productId);
-                        if (totalItemEl && typeof data.totalItem !== 'undefined') {
-                            totalItemEl.textContent = formatarNumeroBR(data.totalItem);
-                        }
-
-                        // Atualiza total do carrinho
-                        const totalCarrinhoEl = document.getElementById('total-carrinho');
-                        if (totalCarrinhoEl && typeof data.totalCarrinho !== 'undefined') {
-                            totalCarrinhoEl.textContent = formatarNumeroBR(data.totalCarrinho);
-                        }
-                    } catch (e) {
-                        console.error('Erro de rede ao atualizar quantidade:', e);
-                    }
-
-                }, 500);
-            });
-
-            // Validação ao perder o foco
-            input.addEventListener('blur', function () {
-                if (!this.value.trim()) {
-                    this.value = '1';
-                    const event = new Event('input', { bubbles: true });
-                    this.dispatchEvent(event);
-                }
-            });
-        });
-    </script>
-
-
-</main>
-
-</html>
+                            console.error('Fal

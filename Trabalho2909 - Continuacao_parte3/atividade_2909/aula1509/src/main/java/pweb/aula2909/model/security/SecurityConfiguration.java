@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
@@ -11,13 +12,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import pweb.aula2909.model.service.UsuarioService;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-@Configuration //classe de configuração
-@EnableWebSecurity //indica ao Spring que serão definidas configurações personalizadas de segurança
+@Configuration
+@EnableWebSecurity
 public class SecurityConfiguration {
 
     @Autowired
@@ -28,10 +27,10 @@ public class SecurityConfiguration {
         http.authorizeHttpRequests(
                         customizer ->
                                 customizer
-                                        // H2 Console - Acesso público
+                                        // H2 Console
                                         .requestMatchers("/h2-console/**").permitAll()
 
-                                        // Rotas públicas (sem autenticação)
+                                        // Públicas
                                         .requestMatchers("/login").permitAll()
                                         .requestMatchers("/escolher-tipo-cadastro").permitAll()
                                         .requestMatchers("/produto/listVenda").permitAll()
@@ -39,37 +38,35 @@ public class SecurityConfiguration {
                                         .requestMatchers("/pessoajuridica/form").permitAll()
                                         .requestMatchers(HttpMethod.POST, "/pessoafisica/salvar").permitAll()
                                         .requestMatchers(HttpMethod.POST, "/pessoajuridica/salvar").permitAll()
-                                        .requestMatchers(HttpMethod.POST, "/produto/form/salvar").hasAnyRole("ADMIN")
                                         .requestMatchers("/images/**").permitAll()
 
-                                        .requestMatchers("/venda/list").permitAll() // Venda disponível para todos
+                                        // Carrinho (cliente/admin)
+                                        .requestMatchers("/carrinho/**").hasAnyRole("CLIENTE", "ADMIN")
 
-                                        // Rotas para CLIENTE autenticado
-                                        .requestMatchers("/carrinho/carrinho").hasAnyRole("CLIENTE", "ADMIN")
+                                        // Vendas (cliente/admin) - controller filtra o que aparece
+                                        .requestMatchers("/venda/**").hasAnyRole("CLIENTE", "ADMIN")
 
-                                        // Rotas que exigem ADMIN
-                                        .requestMatchers("/pessoafisica/list").hasAnyRole("ADMIN")
-                                        .requestMatchers("/pessoafisica/editar/**").hasAnyRole("ADMIN")
-                                        .requestMatchers("/pessoajuridica/list").hasAnyRole("ADMIN")
-                                        .requestMatchers("/pessoajuridica/editar/**").hasAnyRole("ADMIN")
-                                        .requestMatchers("/produto/list").hasAnyRole("ADMIN")
+                                        // Admin
+                                        .requestMatchers("/pessoafisica/list", "/pessoafisica/editar/**").hasRole("ADMIN")
+                                        .requestMatchers("/pessoajuridica/list", "/pessoajuridica/editar/**").hasRole("ADMIN")
+                                        .requestMatchers("/produto/list").hasRole("ADMIN")
+                                        .requestMatchers(HttpMethod.POST, "/produto/form/salvar").hasRole("ADMIN")
 
-                                        // Qualquer outra requisição requer autenticação
-                                        .anyRequest() //define que a configuração é válida para qualquer requisição.
-                                        .authenticated()//define que o usuário precisa estar autenticado.
+                                        .anyRequest().authenticated()
                 )
                 .formLogin(customizer ->
                         customizer
-                                .loginPage("/login") //passamos como parâmetro a URL para acesso à página de login que criamos
+                                .loginPage("/login")
                                 .defaultSuccessUrl("/produto/listVenda", true)
-                                .permitAll() //define que essa página pode ser acessada por todos, independentemente do usuário estar autenticado ou não.
+                                .permitAll()
                 )
-                .httpBasic(withDefaults()) //configura a autenticação básica (usuário e senha)
-                .logout(LogoutConfigurer::permitAll) //configura a funcionalidade de logout no Spring Security.
-                .rememberMe(customizer -> customizer.userDetailsService(usuarioService)) //permite que os usuários permaneçam autenticados mesmo após o fechamento do navegador
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**")) // Desabilitar CSRF para H2 console
-                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())); // Permitir frames para H2
-                 http.authenticationProvider(authenticationProvider());
+                .httpBasic(withDefaults())
+                .logout(LogoutConfigurer::permitAll)
+                .rememberMe(customizer -> customizer.userDetailsService(usuarioService))
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
+
+        http.authenticationProvider(authenticationProvider());
 
         return http.build();
     }
@@ -81,7 +78,6 @@ public class SecurityConfiguration {
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {

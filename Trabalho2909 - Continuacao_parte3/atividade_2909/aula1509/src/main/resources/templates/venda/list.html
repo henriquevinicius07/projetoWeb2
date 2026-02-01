@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="pt-br"
       th:replace="~{layout :: layout(~{::head}, ~{::main})}">
 
 <head th:replace="~{fragments/head :: head('Lista de Vendas')}"></head>
 
 <main class="flex-grow-1">
     <div class="container my-4">
-
         <div class="card shadow-lg border-0">
-
             <div class="card-header bg-primary text-white text-center py-3">
                 <h2 class="mb-0">
                     <i class="bi bi-basket2-fill me-2"></i>Vendas
@@ -17,38 +17,34 @@
 
             <div class="card-body">
 
-                <div class="d-flex justify-content-center flex-wrap gap-2 mb-4">
-                    <a th:href="@{/venda/form}" class="btn btn-success">
-                        <i class="bi bi-cart-plus me-2"></i>Nova Venda
-                    </a>
+                <div class="mb-3 text-center" th:unless="${isAdmin}">
+                    <span class="badge bg-secondary">
+                        Compras de: <span th:text="${clienteLogado != null ? clienteLogado.nomeExibicao : 'Usuário'}"></span>
+                    </span>
                 </div>
-
-
 
                 <form class="d-flex justify-content-center mb-4 flex-wrap gap-2"
                       method="get" th:action="@{/venda/list}">
 
-                    <select name="clienteId" class="btn btn-primary">
-                        <option value="">Todos os clientes</option>
-                        <option th:each="c : ${clientes}"
-                                th:value="${c.id}"
-                                th:selected="${clienteFiltro == c.id}"
-                                th:text="${c.nomeExibicao}"></option>
-                    </select>
+                    <div th:if="${isAdmin}">
+                        <select name="clienteId" class="btn btn-primary">
+                            <option value="">Todos os clientes</option>
+                            <option th:each="c : ${clientes}"
+                                    th:value="${c.id}"
+                                    th:selected="${clienteFiltro == c.id}"
+                                    th:text="${c.nomeExibicao}"></option>
+                        </select>
+                    </div>
 
-                    <input
-                            type="date"
-                            name="dataInicio"
-                            class="form-control w-auto"
-                            th:value="${dataInicioFiltro}"
-                    >
+                    <input type="date"
+                           name="dataInicio"
+                           class="form-control w-auto"
+                           th:value="${dataInicioFiltro}">
 
-                    <input
-                            type="date"
-                            name="dataFim"
-                            class="form-control w-auto"
-                            th:value="${dataFimFiltro}"
-                    >
+                    <input type="date"
+                           name="dataFim"
+                           class="form-control w-auto"
+                           th:value="${dataFimFiltro}">
 
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-search"></i> Filtrar
@@ -59,13 +55,13 @@
                     </a>
                 </form>
 
-
                 <div class="table-responsive">
                     <table class="table table-hover align-middle text-center mb-0">
                         <thead class="table-primary">
                         <tr>
                             <th scope="col">ID</th>
                             <th scope="col">Data</th>
+                            <th scope="col">Cliente</th>
                             <th scope="col">Total (R$)</th>
                             <th scope="col">Ações</th>
                         </tr>
@@ -74,6 +70,7 @@
                         <tr th:each="venda : ${vendas}">
                             <td th:text="${venda.id}"></td>
                             <td th:text="${#temporals.format(venda.data, 'dd/MM/yyyy HH:mm')}"></td>
+                            <td th:text="${venda.cliente != null ? venda.cliente.nomeExibicao : '-'}"></td>
                             <td>
                                 R$ <span th:text="${#numbers.formatDecimal(venda.total, 2, 'POINT', 2, 'COMMA')}"></span>
                             </td>
@@ -85,7 +82,7 @@
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(vendas)}">
-                            <td colspan="4" class="text-muted fst-italic">
+                            <td colspan="5" class="text-muted fst-italic">
                                 Nenhuma venda encontrada.
                             </td>
                         </tr>

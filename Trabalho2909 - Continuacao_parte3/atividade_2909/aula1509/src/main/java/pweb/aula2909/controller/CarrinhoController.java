@@ -2,15 +2,18 @@ package pweb.aula2909.controller;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.http.ResponseEntity;
 import pweb.aula2909.model.entity.ItemVenda;
 import pweb.aula2909.model.entity.Pessoa;
 import pweb.aula2909.model.entity.Produto;
+import pweb.aula2909.model.entity.Usuario;
 import pweb.aula2909.model.entity.Venda;
 import pweb.aula2909.model.repository.PessoaFisicaRepository;
 import pweb.aula2909.model.repository.PessoaJuridicaRepository;
@@ -80,7 +83,9 @@ public class CarrinhoController {
     }
 
     @GetMapping({"/carrinho", ""})
-    public ModelAndView visualizarCarrinho(ModelMap model, HttpSession session) {
+    public ModelAndView visualizarCarrinho(ModelMap model,
+                                           HttpSession session,
+                                           @AuthenticationPrincipal Usuario usuarioLogado) {
 
         List<ItemVenda> carrinho = getCarrinhoFromSession(session);
 
@@ -92,14 +97,23 @@ public class CarrinhoController {
         model.addAttribute("itens", carrinho);
         model.addAttribute("total", total);
 
-        List<Object> clientes = new ArrayList<>();
-        clientes.addAll(pessoaFisicaRepo.pessoasFisicas());
-        clientes.addAll(pessoaJuridicaRepo.pessoasJuridicas());
-        model.addAttribute("clientes", clientes);
+        boolean isAdmin = isAdmin(usuarioLogado);
+        model.addAttribute("isAdmin", isAdmin);
+
+        if (isAdmin) {
+            // ADMIN: pode escolher qualquer cliente
+            List<Object> clientes = new ArrayList<>();
+            clientes.addAll(pessoaFisicaRepo.pessoasFisicas());
+            clientes.addAll(pessoaJuridicaRepo.pessoasJuridicas());
+            model.addAttribute("clientes", clientes);
+        } else {
+            // CLIENTE: usa o cliente vinculado ao usuário logado
+            Pessoa clienteLogado = (usuarioLogado != null) ? usuarioLogado.getPessoa() : null;
+            model.addAttribute("clienteLogado", clienteLogado);
+        }
 
         return new ModelAndView("/Carrinho/carrinho", model);
     }
-
 
     @PostMapping("/update/{id}")
     @ResponseBody
@@ -158,17 +172,32 @@ public class CarrinhoController {
     }
 
     @PostMapping("/finalizar")
-    public ModelAndView finalizarCompra(@RequestParam("clienteId") Long clienteId,
-                                        HttpSession session) {
+    public ModelAndView finalizarCompra(@RequestParam(value = "clienteId", required = false) Long clienteId,
+                                        HttpSession session,
+                                        @AuthenticationPrincipal Usuario usuarioLogado) {
 
         List<ItemVenda> carrinho = getCarrinhoFromSession(session);
         if (carrinho.isEmpty()) {
             return new ModelAndView("redirect:/carrinho/carrinho");
         }
 
-        Pessoa cliente = pessoaFisicaRepo.buscarPorId(clienteId);
-        if (cliente == null) {
-            cliente = pessoaJuridicaRepo.buscarPorId(clienteId);
+        boolean isAdmin = isAdmin(usuarioLogado);
+
+        Pessoa cliente = null;
+
+        if (isAdmin) {
+            // ADMIN: precisa escolher um cliente
+            if (clienteId == null) {
+                return new ModelAndView("redirect:/carrinho/carrinho");
+            }
+
+            cliente = pessoaFisicaRepo.buscarPorId(clienteId);
+            if (cliente == null) {
+                cliente = pessoaJuridicaRepo.buscarPorId(clienteId);
+            }
+        } else {
+            // CLIENTE: cliente é sempre o vinculado ao usuário logado
+            cliente = (usuarioLogado != null) ? usuarioLogado.getPessoa() : null;
         }
 
         if (cliente == null) {
@@ -188,7 +217,11 @@ public class CarrinhoController {
 
             ItemVenda item = new ItemVenda();
             item.setProduto(produtoFresco);
-            item.setQuantidade(itemSessao.getQuantidade() == null || itemSessao.getQuantidade() < 1 ? 1 : itemSessao.getQuantidade());
+
+            Integer qtd = itemSessao.getQuantidade();
+            if (qtd == null || qtd < 1) qtd = 1;
+            item.setQuantidade(qtd);
+
             item.setVenda(venda);
             itensVenda.add(item);
         }
@@ -201,6 +234,17 @@ public class CarrinhoController {
         return new ModelAndView("redirect:/venda/list");
     }
 
+    private boolean isAdmin(Usuario usuarioLogado) {
+        if (usuarioLogado == null || usuarioLogado.getAuthorities() == null) return false;
+
+        for (GrantedAuthority a : usuarioLogado.getAuthorities()) {
+            if (a != null && "ROLE_ADMIN".equals(a.getAuthority())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private List<ItemVenda> getCarrinhoFromSession(HttpSession session) {
 
         Object o = session.getAttribute(SESSAO_CARRINHO);
@@ -209,6 +253,7 @@ public class CarrinhoController {
             try {
                 return (List<ItemVenda>) o;
             } catch (ClassCastException e) {
+                // ignora e recria
             }
         }
 
