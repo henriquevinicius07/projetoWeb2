@@ -87,15 +87,6 @@
                         </form>
                     </li>
 
-                    <!-- Login - só aparece se NÃO estiver autenticado -->
-                    <li class="nav-item" sec:authorize="!isAuthenticated()">
-                        <a th:href="@{/login}" class="btn btn-sm btn-light d-inline-flex align-items-center"
-                           style="height: 32px;">
-                            <i class="bi bi-box-arrow-in-right" style="line-height: 1;"></i>
-                            <span class="ms-2">Entrar</span>
-                        </a>
-                    </li>
-
                 </ul>
 
             </div>

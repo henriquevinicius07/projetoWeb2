@@ -1,431 +1,159 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<html lang="pt-br"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::head}, ~{::main})}">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistema de Vendas</title>
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-QWTKZyjpPEjH3aXfvQJlgQmVs7ZxIo2PiP7gZeusadMDkwNNJysqOid1f7jlpp28" crossorigin="anonymous">
-
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <th:block th:replace="~{fragments/head :: head('Login - Sistema de Vendas')}"></th:block>
 
     <style>
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        .login-page{
+            min-height: 75vh;
+            background: linear-gradient(135deg, #3161df 0%, #0d5cbc 100%);
         }
-
-        .login-container {
-            width: 100%;
-            max-width: 520px;
-            padding: 20px;
-        }
-
-        .login-card {
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+        .login-card{
+            border: 0;
+            border-radius: 18px;
             overflow: hidden;
-            animation: slideUp 0.6s ease-out;
         }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .lift{
+            transition: transform .18s ease, box-shadow .18s ease;
         }
-
-        .login-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 50px 40px;
-            text-align: center;
-            border-bottom: none;
-        }
-
-        .login-header h1 {
-            font-size: 2.2em;
-            font-weight: 700;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .login-header i {
-            font-size: 2.8em;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .login-header p {
-            margin: 15px 0 0 0;
-            font-size: 1em;
-            opacity: 0.95;
-            font-weight: 300;
-            letter-spacing: 0.5px;
-        }
-
-        .login-body {
-            padding: 50px 40px;
-            background: white;
-        }
-
-        .form-group {
-            margin-bottom: 30px;
-            position: relative;
-        }
-
-        .form-label {
-            font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1.05em;
-        }
-
-        .form-control {
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 14px 16px 14px 44px;
-            font-size: 1.05em;
-            transition: all 0.3s ease;
-            background-color: #f8f9fa;
-            width: 100%;
-        }
-
-        .form-control:focus {
-            background-color: white;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
-            outline: none;
-        }
-
-        .form-control.is-invalid {
-            border-color: #dc3545;
-            background-color: #fff8f8;
-        }
-
-        .form-control.is-invalid:focus {
-            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
-        }
-
-        .form-control.is-valid {
-            border-color: #28a745;
-            background-color: #f8fff9;
-        }
-
-        .form-control.is-valid:focus {
-            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.15);
-        }
-
-        .form-control::placeholder {
-            color: #999;
-        }
-
-        .error-message {
-            color: #dc3545;
-            font-size: 0.9em;
-            margin-top: 8px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            animation: slideDown 0.3s ease;
-        }
-
-        .success-message {
-            color: #28a745;
-            font-size: 0.9em;
-            margin-top: 8px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            color: white;
-            padding: 14px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 1.1em;
-            width: 100%;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 10px;
-        }
-
-        .btn-login:hover:not(:disabled) {
+        .lift:hover{
             transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
-            color: white;
+            box-shadow: 0 1.2rem 2.6rem rgba(0,0,0,.18) !important;
         }
-
-        .btn-login:active:not(:disabled) {
-            transform: translateY(-1px);
-        }
-
-        .btn-login:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .alert-error {
-            border: none;
-            border-radius: 10px;
-            background-color: #fff5f5;
-            color: #c53030;
-            padding: 18px 22px;
-            margin-bottom: 30px;
-            border-left: 5px solid #c53030;
-            animation: shake 0.5s;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
-        .alert-error i {
-            font-size: 1.3em;
-            flex-shrink: 0;
-        }
-
-        .alert-error strong {
-            display: block;
-            margin-bottom: 3px;
-            font-weight: 700;
-        }
-
-        .login-footer {
-            text-align: center;
-            padding-top: 25px;
-            border-top: 2px solid #e0e0e0;
-            color: #666;
-            font-size: 0.95em;
-            margin-top: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .login-footer i {
-            color: #667eea;
-            font-size: 1.1em;
-        }
-
-        /* Efeitos de input */
-        .input-icon {
+        /* Ícone dentro do input */
+        .input-icon{
             position: relative;
-            display: flex;
-            align-items: center;
         }
-
-        .input-icon i {
+        .input-icon .bi{
             position: absolute;
             left: 14px;
             top: 50%;
             transform: translateY(-50%);
-            color: #667eea;
+            color: rgba(13,110,253,.85); /* primary */
             pointer-events: none;
-            font-size: 1.1em;
         }
-
-        .input-icon .form-control {
+        .input-icon .form-control{
             padding-left: 44px;
-        }
-
-        .validation-feedback {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.2em;
-            pointer-events: none;
-        }
-
-        .validation-feedback.valid {
-            color: #28a745;
-        }
-
-        .validation-feedback.invalid {
-            color: #dc3545;
         }
     </style>
 </head>
 
-<body>
-    <div class="login-container">
+<main>
+    <section class="login-page d-flex align-items-center py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-9 col-lg-6 col-xl-5">
 
-        <!-- Alerta de erro -->
-        <div th:if="${param.error}" class="alert alert-error alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-circle-fill"></i>
-            <strong>Erro na autenticação!</strong> Usuário ou senha inválidos. Tente novamente.
-            <button type="button" class="btn-close btn-close-custom" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-
-        <!-- Card de Login -->
-        <div class="card login-card">
-
-            <!-- Header -->
-            <div class="login-header">
-                <h1>
-                    <i class="bi bi-shop"></i>
-                    Sistema de Vendas
-                </h1>
-            </div>
-
-            <!-- Body -->
-            <div class="login-body">
-                <form th:action="@{/login}" method="post" id="loginForm">
-
-                    <input type="hidden" th:if="${_csrf != null}"
-                           th:name="${_csrf.parameterName}"
-                           th:value="${_csrf.token}" />
-
-                    <!-- Campo Usuário -->
-                    <div class="form-group">
-                        <label for="username" class="form-label">
-                            <i class="bi bi-person-fill"></i>
-                            Usuário
-                        </label>
-                        <div class="input-icon">
-                            <i class="bi bi-person"></i>
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="username"
-                                name="username"
-                                placeholder="Digite seu usuário"
-                                required
-                                minlength="3"
-                                autofocus>
-                            <span class="validation-feedback"></span>
+                    <!-- Alert de erro (Bootstrap puro) -->
+                    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                        <div class="d-flex gap-2 align-items-start">
+                            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                            <div>
+                                <div class="fw-semibold">Erro na autenticação</div>
+                                <div class="small">Usuário ou senha inválidos. Tente novamente.</div>
+                            </div>
                         </div>
-                        <div class="error-message" id="usernameError" style="display: none;">
-                            <i class="bi bi-exclamation-circle"></i>
-                            <span id="usernameErrorText"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                    <div class="card login-card shadow-lg lift">
+                        <!-- Header -->
+                        <div class="p-4 text-white" style="background: rgba(13,110,253,1);">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center"
+                                     style="width: 52px; height: 52px;">
+                                    <i class="bi bi-shop fs-3"></i>
+                                </div>
+                                <div>
+                                    <div class="small text-white-50 fw-semibold">Acesso ao sistema</div>
+                                    <h1 class="h4 mb-0 fw-bold">Sistema de Vendas</h1>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="card-body p-4 p-md-5 bg-body">
+                            <div class="text-center mb-4">
+                                <div class="fw-semibold">Entrar</div>
+                                <div class="text-secondary small">Use seu usuário e senha para continuar</div>
+                            </div>
+
+                            <form th:action="@{/login}" method="post" id="loginForm" novalidate>
+                                <!-- CSRF -->
+                                <input type="hidden" th:if="${_csrf != null}"
+                                       th:name="${_csrf.parameterName}"
+                                       th:value="${_csrf.token}" />
+
+                                <!-- Usuário -->
+                                <div class="mb-3">
+                                    <label for="username" class="form-label fw-semibold">
+                                        Usuário
+                                    </label>
+                                    <div class="input-icon">
+                                        <i class="bi bi-person-fill"></i>
+                                        <input type="text"
+                                               class="form-control form-control-lg"
+                                               id="username"
+                                               name="username"
+                                               placeholder="Digite seu usuário"
+                                               required
+                                               minlength="3"
+                                               autofocus>
+                                    </div>
+                                    <div class="form-text">Mínimo de 3 caracteres.</div>
+                                </div>
+
+                                <!-- Senha -->
+                                <div class="mb-3">
+                                    <label for="password" class="form-label fw-semibold">
+                                        Senha
+                                    </label>
+                                    <div class="input-icon">
+                                        <i class="bi bi-lock-fill"></i>
+                                        <input type="password"
+                                               class="form-control form-control-lg"
+                                               id="password"
+                                               name="password"
+                                               placeholder="Digite sua senha"
+                                               required
+                                               minlength="3">
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold" id="loginBtn">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                                    Entrar
+                                </button>
+
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <span class="text-secondary small">
+                                        Não tem conta?
+                                        <a th:href="@{/escolher-tipo-cadastro}" class="text-decoration-none fw-semibold">Cadastre-se</a>
+                                    </span>
+
+                                    <!-- Se você não quiser isso, pode remover -->
+                                    <span class="text-secondary small">
+                                        <i class="bi bi-shield-lock-fill me-1"></i> Seguro
+                                    </span>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="card-footer bg-white text-center py-3">
+                            <span class="text-secondary small">
+                                © <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2026</span> • Sistema de Vendas
+                            </span>
                         </div>
                     </div>
 
-                    <!-- Campo Senha -->
-                    <div class="form-group">
-                        <label for="password" class="form-label">
-                            <i class="bi bi-lock-fill"></i>
-                            Senha
-                        </label>
-                        <div class="input-icon">
-                            <i class="bi bi-lock"></i>
-                            <input
-                                type="password"
-                                class="form-control"
-                                id="password"
-                                name="password"
-                                placeholder="Digite sua senha"
-                                required
-                                minlength="3">
-                            <span class="validation-feedback"></span>
-                        </div>
-                        <div class="error-message" id="passwordError" style="display: none;">
-                            <i class="bi bi-exclamation-circle"></i>
-                            <span id="passwordErrorText"></span>
-                        </div>
-                    </div>
-
-                    <!-- Botão Login -->
-                    <button type="submit" class="btn btn-login" id="loginBtn">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>
-                        Entrar
-                    </button>
-
-                </form>
-
-                <!-- Link para Cadastro -->
-                <div class="login-footer">
-                    <p class="mb-0 text-secondary">
-                        Não tem conta? <a href="/escolher-tipo-cadastro" class="text-primary fw-bold">Registre-se aqui</a>
-                    </p>
-                </div>
-
-                <!-- Footer -->
-                <div class="login-footer">
-                    <p class="mb-0 text-secondary">&copy; 2025 Cadastro de Produtos - Programação Web II</p>
                 </div>
             </div>
-
         </div>
+    </section>
 
-    </div>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-            crossorigin="anonymous"></script>
-
-    <script>
-        // Animação ao focar nos inputs
-        document.querySelectorAll('.form-control').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.style.transform = 'scale(1.02)';
-                this.parentElement.style.transition = 'transform 0.3s ease';
-            });
-
-            input.addEventListener('blur', function() {
-                this.parentElement.style.transform = 'scale(1)';
-            });
-        });
-
-        // Validação simples do formulário
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-
-            if (!username || !password) {
-                e.preventDefault();
-                alert('Por favor, preencha todos os campos!');
-            }
-        });
-    </script>
-
-</body>
+</main>
 
 </html>

@@ -1,3 +1,4 @@
+/*
 package pweb.aula2909.model.security;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,3 +12,4 @@ public class GeradorSenha {
         System.out.println("cliente   -> " + encoder.encode("123"));
     }
 }
+*/
