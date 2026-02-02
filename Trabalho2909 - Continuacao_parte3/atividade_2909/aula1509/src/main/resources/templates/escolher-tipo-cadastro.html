@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::head}, ~{::main})}">
+
+<head>
+    <!-- Mesmo head do projeto (Bootstrap/Icons/CSRF etc) -->
+    <th:block th:replace="~{fragments/head :: head('Escolher Tipo de Cadastro - Sistema de Vendas')}"></th:block>
+
+    <style>
+        .choice-page{
+            min-height: 75vh; /* igual ao login: deixa espaço para navbar/footer */
+            background: linear-gradient(135deg, #3161df 0%, #0d5cbc 100%);
+            display: flex;
+            align-items: center;
+            padding: 40px 12px;
+        }
+
+        .choice-card{
+            border: 0;
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        .lift{
+            transition: transform .18s ease, box-shadow .18s ease;
+        }
+        .lift:hover{
+            transform: translateY(-3px);
+            box-shadow: 0 1.2rem 2.6rem rgba(0,0,0,.18) !important;
+        }
+
+        /* Botões estilo card */
+        .choice-btn{
+            border-radius: 16px;
+            border: 1px solid rgba(13,110,253,.18);
+            text-decoration: none;
+            background: #fff;
+            transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+        }
+        .choice-btn:hover{
+            transform: translateY(-3px);
+            box-shadow: 0 .9rem 2rem rgba(0,0,0,.10);
+            border-color: rgba(13,110,253,.35);
+        }
+
+        .choice-icon{
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: rgba(13,110,253,.10);
+            color: rgba(13,110,253,1);
+        }
+
+        .muted-link{
+            text-decoration: none;
+        }
+        .muted-link:hover{
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<main>
+    <section class="choice-page">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-10 col-lg-8 col-xl-7">
+
+                    <div class="card choice-card shadow-lg lift">
+                        <!-- Header -->
+                        <div class="p-4 text-white" style="background: rgba(13,110,253,1);">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center"
+                                     style="width: 52px; height: 52px;">
+                                    <i class="bi bi-person-plus fs-3"></i>
+                                </div>
+                                <div>
+                                    <div class="small text-white-50 fw-semibold">Cadastro</div>
+                                    <h1 class="h4 mb-0 fw-bold">Escolha o tipo de cadastro</h1>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="card-body p-4 p-md-5 bg-body">
+                            <div class="text-center mb-4">
+                                <div class="text-secondary">
+                                    Selecione como você deseja se cadastrar no sistema
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+                                <!-- Pessoa Física -->
+                                <div class="col-12 col-md-6">
+                                    <a th:href="@{/pessoafisica/form}" href="/pessoafisica/form"
+                                       class="choice-btn d-block p-4 lift">
+                                        <div class="d-flex gap-3 align-items-start">
+                                            <div class="choice-icon">
+                                                <i class="bi bi-person-fill fs-3"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold fs-5 text-dark mb-1">Pessoa Física</div>
+                                                <div class="text-secondary small mb-2">Para indivíduos</div>
+                                                <span class="badge text-bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">
+                                                    Continuar
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <!-- Pessoa Jurídica -->
+                                <div class="col-12 col-md-6">
+                                    <a th:href="@{/pessoajuridica/form}" href="/pessoajuridica/form"
+                                       class="choice-btn d-block p-4 lift">
+                                        <div class="d-flex gap-3 align-items-start">
+                                            <div class="choice-icon">
+                                                <i class="bi bi-building fs-3"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold fs-5 text-dark mb-1">Pessoa Jurídica</div>
+                                                <div class="text-secondary small mb-2">Para empresas</div>
+                                                <span class="badge text-bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">
+                                                    Continuar
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                                <div class="text-secondary small">
+                                    Já possui uma conta?
+                                    <a th:href="@{/login}" href="/login" class="muted-link fw-semibold text-primary">
+                                        Faça login
+                                    </a>
+                                </div>
+                                <div class="text-secondary small">
+                                    © <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2025</span> • Sistema de Vendas
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+</html>
